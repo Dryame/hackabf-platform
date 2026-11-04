@@ -1,0 +1,26 @@
+# --- BACKEND (Java / Maven) ---
+backend/backend/target/
+*.jar
+*.war
+*.class
+
+# --- FRONTEND (Node / Angular) ---
+node_modules/
+frontend/dist/
+frontend/.angular/
+npm-debug.log
+yarn-error.log
+
+# --- ENVIRONNEMENT & SECRETS ---
+.env
+*.log
+server.log
+boot.log
+spring.log
+
+# --- IDE & OS ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
