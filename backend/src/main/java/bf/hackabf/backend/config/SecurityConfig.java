@@ -31,8 +31,16 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/public/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/actuator/**", "/uploads/**").permitAll()
-                .requestMatchers("/api/files/**").authenticated()
+                // Autorisation explicite pour Swagger et l'API publique
+                .requestMatchers(
+                    "/api/auth/**", 
+                    "/api/public/**", 
+                    "/swagger-ui/**", 
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**", 
+                    "/actuator/**", 
+                    "/uploads/**"
+                ).permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
