@@ -1,0 +1,88 @@
+<div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+  <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-2xl backdrop-blur-sm">
+    <h2 class="text-3xl font-extrabold text-white mb-2 text-center">Publier un Hackathon</h2>
+    <p class="text-slate-400 text-center mb-8">Partagez votre événement avec la communauté tech.</p>
+
+    <div *ngIf="message" class="bg-red-900/50 border border-red-500 text-red-300 px-4 py-3 rounded-lg text-sm mb-6 text-center">
+      {{ message }}
+    </div>
+
+    <form [formGroup]="hackathonForm" (ngSubmit)="onSubmit()" class="space-y-6">
+      
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Titre de l'événement</label>
+        <input type="text" formControlName="titre" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Hackathon IA 2025">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-slate-300 mb-1">Description</label>
+        <textarea formControlName="description" rows="4" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Décrivez les objectifs de l'événement..."></textarea>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Date de début</label>
+          <input type="datetime-local" formControlName="dateDebut" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Date de fin</label>
+          <input type="datetime-local" formControlName="dateFin" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Catégorie</label>
+          <select formControlName="categorieId" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <option value="" disabled selected>Choisir une catégorie</option>
+            @for (cat of categories; track cat.id) {
+              <option [value]="cat.id">{{ cat.nom }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Format</label>
+          <select formControlName="format" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <option value="PRESENTIEL">Présentiel</option>
+            <option value="EN_LIGNE">En ligne</option>
+            <option value="HYBRIDE">Hybride</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Lieu (Ville)</label>
+          <input type="text" formControlName="lieu" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Ouagadougou">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Lien d'inscription (URL)</label>
+          <input type="url" formControlName="lienInscription" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="https://...">
+        </div>
+      </div>
+
+      <!-- UPLOAD D'IMAGE -->
+      <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:bg-slate-800/50 transition-colors">
+        <label class="cursor-pointer block">
+          <span class="text-slate-300 block mb-2 font-medium">📸 Ajouter une affiche ou une photo (Optionnel)</span>
+          <span class="text-slate-500 text-sm block mb-4">Format JPG, PNG (Max 5Mo)</span>
+          <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden">
+          
+          <!-- Bouton visuel -->
+          <span class="inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition-colors">
+            Choisir un fichier
+          </span>
+        </label>
+
+        <!-- Aperçu de l'image -->
+        @if (imagePreviewUrl) {
+          <div class="mt-6">
+            <img [src]="imagePreviewUrl" alt="Aperçu" class="max-h-48 mx-auto rounded-lg shadow-lg border border-slate-600 object-cover">
+          </div>
+        }
+      </div>
+
+      <button type="submit" [disabled]="hackathonForm.invalid || isSubmitting" class="w-full py-4 text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-500/30">
+        <span *ngIf="!isSubmitting">Publier l'événement</span>
+        <span *ngIf="isSubmitting">Publication en cours...</span>
+      </button>

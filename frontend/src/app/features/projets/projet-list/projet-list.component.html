@@ -1,0 +1,57 @@
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <div class="flex flex-col md:flex-row justify-between items-center mb-10 text-center md:text-left">
+    <div>
+      <h1 class="text-4xl font-bold text-white mb-4">Catalogue des Projets</h1>
+      <p class="text-slate-400">Découvrez les PFA, PFE et projets de perfectionnement.</p>
+    </div>
+    <a *ngIf="authService.isLoggedIn()" routerLink="/publier-projet" class="mt-4 md:mt-0 bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2">
+      <span>+</span> Publier un projet
+    </a>
+  </div>
+
+  <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-8">
+    <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="filterData()" placeholder="Rechercher un projet..." class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+    </div>
+    <div class="flex flex-wrap gap-2">
+      @for (cat of categories; track cat) {
+        <button (click)="setCategorie(cat)" [ngClass]="selectedCategorie === cat ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
+          {{ cat }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-20 text-slate-400">Chargement...</div>
+
+  <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (projet of filteredProjets; track projet.id) {
+      <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all flex flex-col h-full transform hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10">
+        
+        <!-- Image si elle existe -->
+        @if (projet.imageUrl) {
+          <div class="h-48 w-full overflow-hidden">
+            <img [src]="projet.imageUrl" alt="Affiche" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+          </div>
+        }
+
+        <div class="p-6 flex-grow flex flex-col">
+          <div class="flex justify-between items-start mb-4">
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-cyan-900/50 text-cyan-300 border border-cyan-700/50">{{ projet.typeProjet }}</span>
+            <span class="text-xs text-slate-400">{{ projet.anneeAcademique }}</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">{{ projet.titre }}</h3>
+          <p class="text-slate-400 text-sm mb-4 line-clamp-3 flex-grow">{{ projet.description }}</p>
+          <div class="mt-4 pt-4 border-t border-slate-700 flex justify-between items-center">
+            <span class="text-sm font-medium text-indigo-400">{{ projet.categorieNom }}</span>
+            <span class="text-xs text-slate-500">Par {{ projet.createurNom }}</span>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="col-span-full text-center py-16 bg-slate-800/50 rounded-xl border border-slate-700 border-dashed">
+        <p class="text-slate-400">Aucun projet ne correspond à votre recherche.</p>
+      </div>
+    }
+  </div>
+</div>
