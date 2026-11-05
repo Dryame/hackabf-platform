@@ -33,6 +33,15 @@ public class Hackathon {
     private String lienInscription;
     
     private String statut = "A_VENIR";
+    
+    @Column(name = "vainqueur")
+    private String vainqueur;
+
+    @Column(name = "image_vainqueur", length = 500)
+    private String imageVainqueur;
+
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "categorie_id")

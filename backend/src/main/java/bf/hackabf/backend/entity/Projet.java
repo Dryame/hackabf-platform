@@ -32,6 +32,9 @@ public class Projet {
     
     private String anneeAcademique;
 
+    @Column(name = "image_url", length = 500)
+    private String imageUrl;
+
     @ManyToOne
     @JoinColumn(name = "categorie_id")
     private Categorie categorie;

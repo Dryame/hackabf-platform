@@ -12,25 +12,50 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class HackathonService {
 
     private final HackathonRepository hackathonRepository;
     private final CategorieRepository categorieRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final NotificationService notificationService;
 
     public HackathonService(HackathonRepository hackathonRepository, 
                             CategorieRepository categorieRepository,
-                            UtilisateurRepository utilisateurRepository) {
+                            UtilisateurRepository utilisateurRepository,
+                            NotificationService notificationService) {
         this.hackathonRepository = hackathonRepository;
         this.categorieRepository = categorieRepository;
         this.utilisateurRepository = utilisateurRepository;
+        this.notificationService = notificationService;
     }
 
     public Page<HackathonResponse> getAllHackathons(int page, int size) {
-        // On limite à 10 par défaut comme demandé
         return hackathonRepository.findAllByOrderByDateDebutDesc(PageRequest.of(page, size))
                 .map(this::mapToResponse);
+    }
+
+    public List<HackathonResponse> getVainqueurs() {
+        return hackathonRepository.findAllByVainqueurIsNotNullOrderByDateFinDesc()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public HackathonResponse getHackathonById(String id) {
+        Hackathon hackathon = hackathonRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hackathon introuvable avec l'id : " + id));
+        return mapToResponse(hackathon);
+    }
+
+    public List<HackathonResponse> getHackathonsByUser(String email) {
+        return hackathonRepository.findByCreateurEmailOrderByDateDebutDesc(email)
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     public HackathonResponse createHackathon(HackathonRequest request, String userEmail) {
@@ -48,12 +73,30 @@ public class HackathonService {
         hackathon.setLieu(request.getLieu());
         hackathon.setFormat(request.getFormat());
         hackathon.setLienInscription(request.getLienInscription());
+        hackathon.setImageUrl(request.getImageUrl());
         hackathon.setCategorie(categorie);
         hackathon.setCreateur(createur);
         hackathon.setStatut("A_VENIR");
 
         Hackathon saved = hackathonRepository.save(hackathon);
+        
+        notificationService.envoyerEmailNouveauHackathon(saved.getTitre(), saved.getDescription(), "etudiant.test@hackabf.bf");
+
         return mapToResponse(saved);
+    }
+
+    public HackathonResponse designerVainqueur(String id, String vainqueur, String imageVainqueur, String email) {
+        Hackathon hackathon = hackathonRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
+        
+        // Sécurité : Seul le créateur ou un admin peut désigner le vainqueur
+        if (!hackathon.getCreateur().getEmail().equals(email)) {
+            throw new RuntimeException("Vous n'êtes pas autorisé à modifier ce hackathon.");
+        }
+
+        hackathon.setVainqueur(vainqueur);
+        hackathon.setImageVainqueur(imageVainqueur);
+        return mapToResponse(hackathonRepository.save(hackathon));
     }
 
     private HackathonResponse mapToResponse(Hackathon hackathon) {
@@ -67,6 +110,9 @@ public class HackathonService {
         response.setFormat(hackathon.getFormat());
         response.setLienInscription(hackathon.getLienInscription());
         response.setStatut(hackathon.getStatut());
+        response.setVainqueur(hackathon.getVainqueur());
+        response.setImageVainqueur(hackathon.getImageVainqueur());
+        response.setImageUrl(hackathon.getImageUrl());
         
         if (hackathon.getCategorie() != null) {
             response.setCategorieNom(hackathon.getCategorie().getNom());

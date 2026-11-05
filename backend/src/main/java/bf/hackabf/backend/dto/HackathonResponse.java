@@ -16,4 +16,7 @@ public class HackathonResponse {
     private String statut;
     private String categorieNom;
     private String createurNom;
+    private String vainqueur;
+    private String imageVainqueur;
+    private String imageUrl;
 }

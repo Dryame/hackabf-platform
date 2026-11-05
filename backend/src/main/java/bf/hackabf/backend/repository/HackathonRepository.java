@@ -6,8 +6,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface HackathonRepository extends JpaRepository<Hackathon, String> {
-    // Remplacement de la List par Page pour gérer la pagination
     Page<Hackathon> findAllByOrderByDateDebutDesc(Pageable pageable);
+    
+    // Récupérer les 3 derniers hackathons qui ont un vainqueur
+    List<Hackathon> findAllByVainqueurIsNotNullOrderByDateFinDesc();
+    List<Hackathon> findByCreateurEmailOrderByDateDebutDesc(String email);
 }
