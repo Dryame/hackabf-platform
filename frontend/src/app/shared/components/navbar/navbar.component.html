@@ -1,29 +1,39 @@
 <nav class="bg-slate-950 border-b border-slate-800 sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
+      
       <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
         <span class="text-2xl">🚀</span>
         <span class="font-bold text-xl tracking-tight text-white">Hacka<span class="text-indigo-500">BF</span></span>
       </div>
+      
       <div class="hidden md:block">
         <div class="ml-10 flex items-baseline space-x-4">
-          <a routerLink="/" routerLinkActive="bg-slate-800 text-white" [routerLinkActiveOptions]="{exact: true}" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Accueil</a>
-          <a routerLink="/hackathons" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Hackathons</a>
-          <a routerLink="/projets" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Projets (PFA/PFE)</a>
-          <a *ngIf="authService.isLoggedIn()" routerLink="/publier" class="text-indigo-400 font-bold hover:text-indigo-300 px-3 py-2 rounded-md text-sm flex items-center gap-1">
+          <a routerLink="/" routerLinkActive="bg-slate-800 text-white" [routerLinkActiveOptions]="{exact: true}" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Accueil</a>
+          <a routerLink="/hackathons" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Hackathons</a>
+          
+          <a *ngIf="authService.isLoggedIn()" routerLink="/mon-espace" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Mon Espace</a>
+          <a *ngIf="authService.isLoggedIn()" routerLink="/publier" routerLinkActive="text-indigo-400 bg-slate-800" class="text-indigo-400 font-bold hover:text-indigo-300 px-3 py-2 rounded-md text-sm flex items-center gap-1 transition-colors">
             <span class="text-lg leading-none">+</span> Publier
           </a>
         </div>
       </div>
+
       <div class="flex items-center gap-4">
         <ng-container *ngIf="!authService.isLoggedIn()">
-          <a routerLink="/login" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Connexion</a>
-          <a routerLink="/register" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg shadow-indigo-500/30">S'inscrire</a>
+          <a routerLink="/login" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Connexion</a>
+          <a routerLink="/register" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg shadow-indigo-500/30 transition-all">
+            S'inscrire
+          </a>
         </ng-container>
+
         <ng-container *ngIf="authService.isLoggedIn()">
-          <button (click)="logout()" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/50 px-4 py-2 rounded-md text-sm font-medium">Déconnexion</button>
+          <button (click)="logout()" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/50 px-4 py-2 rounded-md text-sm font-medium transition-all">
+            Déconnexion
+          </button>
         </ng-container>
       </div>
+      
     </div>
   </div>
 </nav>

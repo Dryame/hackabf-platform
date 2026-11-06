@@ -5,18 +5,16 @@ import { HackathonDetailComponent } from './features/hackathons/hackathon-detail
 import { LoginComponent } from './features/auth/login/login.component';
 import { RegisterComponent } from './features/auth/register/register.component';
 import { CreateHackathonComponent } from './features/dashboard/create-hackathon/create-hackathon.component';
-import { ProjetListComponent } from './features/projets/projet-list/projet-list.component';
-import { CreateProjetComponent } from './features/projets/create-projet/create-projet.component';
+import { MonEspaceComponent } from './features/dashboard/mon-espace/mon-espace.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent },
   { path: 'hackathons', component: HackathonListComponent },
-  { path: 'hackathons/:id', component: HackathonDetailComponent }, // NOUVELLE ROUTE
-  { path: 'projets', component: ProjetListComponent },
+  { path: 'hackathons/:id', component: HackathonDetailComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'publier', component: CreateHackathonComponent, canActivate: [AuthGuard] },
-  { path: 'publier-projet', component: CreateProjetComponent, canActivate: [AuthGuard] },
+  { path: 'mon-espace', component: MonEspaceComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: '' }
 ];
