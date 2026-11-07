@@ -1,88 +1,133 @@
-<div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
   <div class="bg-slate-800/50 p-8 rounded-2xl border border-slate-700 shadow-2xl backdrop-blur-sm">
-    <h2 class="text-3xl font-extrabold text-white mb-2 text-center">Publier un Hackathon</h2>
-    <p class="text-slate-400 text-center mb-8">Partagez votre événement avec la communauté tech.</p>
+    <h2 class="text-3xl font-extrabold text-white mb-2 text-center">Configurer un Hackathon</h2>
+    <p class="text-slate-400 text-center mb-8">Définissez l'événement et personnalisez le formulaire d'inscription.</p>
 
     <div *ngIf="message" class="bg-red-900/50 border border-red-500 text-red-300 px-4 py-3 rounded-lg text-sm mb-6 text-center">
       {{ message }}
     </div>
 
-    <form [formGroup]="hackathonForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <form [formGroup]="hackathonForm" (ngSubmit)="onSubmit()" class="space-y-8">
       
-      <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Titre de l'événement</label>
-        <input type="text" formControlName="titre" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Hackathon IA 2025">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-slate-300 mb-1">Description</label>
-        <textarea formControlName="description" rows="4" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Décrivez les objectifs de l'événement..."></textarea>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- INFOS GÉNÉRALES -->
+      <div class="space-y-6">
+        <h3 class="text-lg font-bold text-indigo-400 border-b border-slate-700 pb-2">1. Informations générales</h3>
+        
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Date de début</label>
-          <input type="datetime-local" formControlName="dateDebut" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-sm font-medium text-slate-300 mb-1">Titre de l'événement</label>
+          <input type="text" formControlName="titre" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Hackathon IA 2025">
         </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Date de fin</label>
-          <input type="datetime-local" formControlName="dateFin" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
-        </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Catégorie</label>
-          <select formControlName="categorieId" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
-            <option value="" disabled selected>Choisir une catégorie</option>
-            @for (cat of categories; track cat.id) {
-              <option [value]="cat.id">{{ cat.nom }}</option>
-            }
-          </select>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Description</label>
+          <textarea formControlName="description" rows="3" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Décrivez les objectifs..."></textarea>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Format</label>
-          <select formControlName="format" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
-            <option value="PRESENTIEL">Présentiel</option>
-            <option value="EN_LIGNE">En ligne</option>
-            <option value="HYBRIDE">Hybride</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Lieu (Ville)</label>
-          <input type="text" formControlName="lieu" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Ouagadougou">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-300 mb-1">Lien d'inscription (URL)</label>
-          <input type="url" formControlName="lienInscription" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="https://...">
-        </div>
-      </div>
-
-      <!-- UPLOAD D'IMAGE -->
-      <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:bg-slate-800/50 transition-colors">
-        <label class="cursor-pointer block">
-          <span class="text-slate-300 block mb-2 font-medium">📸 Ajouter une affiche ou une photo (Optionnel)</span>
-          <span class="text-slate-500 text-sm block mb-4">Format JPG, PNG (Max 5Mo)</span>
-          <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden">
-          
-          <!-- Bouton visuel -->
-          <span class="inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition-colors">
-            Choisir un fichier
-          </span>
-        </label>
-
-        <!-- Aperçu de l'image -->
-        @if (imagePreviewUrl) {
-          <div class="mt-6">
-            <img [src]="imagePreviewUrl" alt="Aperçu" class="max-h-48 mx-auto rounded-lg shadow-lg border border-slate-600 object-cover">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Date de début</label>
+            <input type="datetime-local" formControlName="dateDebut" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
           </div>
-        }
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Date de fin</label>
+            <input type="datetime-local" formControlName="dateFin" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Catégorie</label>
+            <select formControlName="categorieId" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+              <option value="" disabled selected>Choisir</option>
+              @for (cat of categories; track cat.id) { <option [value]="cat.id">{{ cat.nom }}</option> }
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">Lieu</label>
+            <input type="text" formControlName="lieu" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Ouagadougou">
+          </div>
+        </div>
       </div>
 
-      <button type="submit" [disabled]="hackathonForm.invalid || isSubmitting" class="w-full py-4 text-lg font-bold rounded-lg text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 transition-all shadow-lg shadow-indigo-500/30">
-        <span *ngIf="!isSubmitting">Publier l'événement</span>
-        <span *ngIf="isSubmitting">Publication en cours...</span>
-      </button>
+      <!-- MODE D'INSCRIPTION & CONSTRUCTEUR DE FORMULAIRE -->
+      <div class="space-y-6">
+        <h3 class="text-lg font-bold text-indigo-400 border-b border-slate-700 pb-2">2. Stratégie d'inscription</h3>
+        
+        <div class="bg-slate-900/50 p-5 rounded-xl border border-slate-700">
+          <label class="block text-sm font-medium text-slate-300 mb-3">Comment les participants doivent-ils s'inscrire ?</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-600 bg-slate-800 cursor-pointer hover:bg-slate-700" [ngClass]="{'border-indigo-500 ring-1 ring-indigo-500': hackathonForm.get('typeInscription')?.value === 'EXTERNE'}">
+              <input type="radio" formControlName="typeInscription" value="EXTERNE" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+              <div class="text-sm"><span class="text-white font-medium block">Lien externe</span><span class="text-slate-400 text-xs">Google Form...</span></div>
+            </label>
+            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-600 bg-slate-800 cursor-pointer hover:bg-slate-700" [ngClass]="{'border-indigo-500 ring-1 ring-indigo-500': hackathonForm.get('typeInscription')?.value === 'INTERNE'}">
+              <input type="radio" formControlName="typeInscription" value="INTERNE" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500">
+              <div class="text-sm"><span class="text-white font-medium block">Formulaire Interne</span><span class="text-slate-400 text-xs">Créé sur HackaBF</span></div>
+            </label>
+          </div>
+
+          <!-- SI EXTERNE : Lien -->
+          @if (hackathonForm.get('typeInscription')?.value === 'EXTERNE') {
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">Lien vers le formulaire de candidature</label>
+              <input type="url" formControlName="lienInscription" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="https://forms.gle/...">
+            </div>
+          }
+
+          <!-- SI INTERNE : CONSTRUCTEUR DE CHAMPS -->
+          @if (hackathonForm.get('typeInscription')?.value === 'INTERNE') {
+            <div class="mt-4 border-t border-slate-700 pt-4">
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-sm font-medium text-slate-300">Champs personnalisés du formulaire</span>
+                <button type="button" (click)="ajouterChamp()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-md text-xs font-bold transition-colors">
+                  + Ajouter un champ
+                </button>
+              </div>
+              
+              <div formArrayName="champsPersonnalises" class="space-y-3">
+                @for (champ of champsPersonnalises.controls; track $index) {
+                  <div [formGroupName]="$index" class="flex gap-3 items-center bg-slate-800 p-3 rounded-lg border border-slate-600">
+                    <div class="flex-grow">
+                      <input type="text" formControlName="label" placeholder="Nom du champ (ex: Lien GitHub)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 text-white rounded text-sm focus:ring-1 focus:ring-indigo-500">
+                    </div>
+                    <div class="w-40">
+                      <select formControlName="type" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 text-white rounded text-sm focus:ring-1 focus:ring-indigo-500">
+                        <option value="text">Texte court</option>
+                        <option value="number">Nombre</option>
+                        <option value="url">Lien URL</option>
+                        <option value="email">Email</option>
+                      </select>
+                    </div>
+                    <button type="button" (click)="supprimerChamp($index)" class="text-red-400 hover:text-red-300 p-2">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                  </div>
+                } @empty {
+                  <p class="text-xs text-slate-500 italic">Aucun champ personnalisé. Si vous ne faites rien, l'inscription se fera juste avec le compte de l'utilisateur.</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- IMAGE & SOUMISSION -->
+      <div class="space-y-6">
+        <h3 class="text-lg font-bold text-indigo-400 border-b border-slate-700 pb-2">3. Visuel & Publication</h3>
+
+        <div class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center hover:bg-slate-800/50 transition-colors">
+          <label class="cursor-pointer block">
+            <span class="text-slate-300 block mb-2 font-medium">📸 Ajouter une affiche (Optionnel)</span>
+            <input type="file" (change)="onFileSelected($event)" accept="image/*" class="hidden">
+            <span class="inline-block bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg transition-colors mt-2">Choisir une image</span>
+          </label>
+          @if (imagePreviewUrl) {
+            <div class="mt-6"><img [src]="imagePreviewUrl" alt="Aperçu" class="max-h-48 mx-auto rounded-lg shadow-lg border border-slate-600"></div>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Code Secret (Hexadécimal - ex: A1B2C3D4)</label>
+          <input type="text" formControlName="codeSecretHex" class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500 font-mono uppercase" placeholder="A1B2C3D4" maxlength="8">
+          <p class="text-xs text-slate-500 mt-1">Ce code sera demandé pour modifier ou supprimer l'événement.</p>
+        </div>

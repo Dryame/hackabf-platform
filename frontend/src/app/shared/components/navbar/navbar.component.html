@@ -2,9 +2,11 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       
-      <div class="flex items-center gap-2 cursor-pointer" routerLink="/">
-        <span class="text-2xl">🚀</span>
-        <span class="font-bold text-xl tracking-tight text-white">Hacka<span class="text-indigo-500">BF</span></span>
+      <!-- LOGO PERSONNALISÉ -->
+      <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
+        <!-- On utilise ton logo.png ici. h-10 permet de garder une taille correcte sans déformer -->
+        <img src="images/logo.png" alt="Logo HackaBF" class="h-10 w-auto object-contain">
+        <span class="font-bold text-xl tracking-tight text-white hidden sm:block">Hacka<span class="text-indigo-500">BF</span></span>
       </div>
       
       <div class="hidden md:block">
@@ -13,6 +15,7 @@
           <a routerLink="/hackathons" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Hackathons</a>
           
           <a *ngIf="authService.isLoggedIn()" routerLink="/mon-espace" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Mon Espace</a>
+          <a *ngIf="authService.isLoggedIn()" routerLink="/admin" routerLinkActive="bg-red-900 text-white" class="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-bold transition-colors">Admin</a>
           <a *ngIf="authService.isLoggedIn()" routerLink="/publier" routerLinkActive="text-indigo-400 bg-slate-800" class="text-indigo-400 font-bold hover:text-indigo-300 px-3 py-2 rounded-md text-sm flex items-center gap-1 transition-colors">
             <span class="text-lg leading-none">+</span> Publier
           </a>

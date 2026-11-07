@@ -10,9 +10,8 @@ import java.util.List;
 
 @Repository
 public interface HackathonRepository extends JpaRepository<Hackathon, String> {
-    Page<Hackathon> findAllByOrderByDateDebutDesc(Pageable pageable);
-    
-    // Récupérer les 3 derniers hackathons qui ont un vainqueur
-    List<Hackathon> findAllByVainqueurIsNotNullOrderByDateFinDesc();
+    Page<Hackathon> findByEstValideTrueOrderByDateDebutDesc(Pageable pageable);
+    List<Hackathon> findByEstValideTrueAndVainqueurIsNotNullOrderByDateFinDesc();
     List<Hackathon> findByCreateurEmailOrderByDateDebutDesc(String email);
+    List<Hackathon> findByEstValideFalse();
 }

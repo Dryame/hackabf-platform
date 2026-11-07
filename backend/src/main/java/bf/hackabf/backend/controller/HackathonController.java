@@ -46,6 +46,33 @@ public class HackathonController {
         return ResponseEntity.ok(hackathonService.getHackathonsByUser(email));
     }
 
+    @PutMapping("/hackathons/{id}/statut")
+    @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
+    public ResponseEntity<HackathonResponse> changerStatut(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(hackathonService.changerStatut(id, body.get("statut"), body.get("codeSecret"), email));
+    }
+
+    @DeleteMapping("/hackathons/{id}")
+    @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
+    public ResponseEntity<?> supprimerHackathon(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        hackathonService.supprimerHackathon(id, body.get("codeSecret"), email);
+        return ResponseEntity.ok(Map.of("message", "Supprimé avec succès"));
+    }
+
+    @GetMapping("/admin/hackathons/en-attente")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<HackathonResponse>> getEnAttente() {
+        return ResponseEntity.ok(hackathonService.getHackathonsEnAttente());
+    }
+
+    @PutMapping("/admin/hackathons/{id}/valider")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<HackathonResponse> valider(@PathVariable String id) {
+        return ResponseEntity.ok(hackathonService.validerHackathon(id));
+    }
+
     @PostMapping("/hackathons")
     @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
     public ResponseEntity<HackathonResponse> createHackathon(@Valid @RequestBody HackathonRequest request) {

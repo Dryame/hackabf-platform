@@ -23,7 +23,10 @@ public class HackathonRequest {
     private String lieu;
     private String format;
     private String lienInscription;
-    private String imageUrl; // <-- LE CHAMP MANQUANT EST ICI
+    private String imageUrl;
+    private String typeInscription;
+    private String formulaireConfig;
+    private String codeSecretHex; // <-- LE CHAMP MANQUANT EST ICI
     
     @NotNull(message = "L'ID de la catégorie est obligatoire")
     private Long categorieId;

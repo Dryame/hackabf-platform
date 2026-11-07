@@ -1,41 +1,131 @@
-<div class="max-w-7xl mx-auto py-8 px-4">
-  <div class="mb-10 text-center">
-    <h1 class="text-4xl font-bold text-white mb-4">Tous les Hackathons</h1>
-    <p class="text-slate-400">Découvrez les opportunités tech au Burkina Faso.</p>
+<div class="max-w-7xl mx-auto py-12 px-4">
+  
+  <!-- EN-TÊTE DE PAGE -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">L'Agenda des Hackathons</h1>
+    <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+      Découvrez les compétitions tech au Burkina Faso. Filtrez par thème, ville ou statut pour trouver votre prochain défi.
+    </p>
   </div>
 
-  <!-- Barre de recherche et Filtres -->
-  <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 mb-8">
-    <div class="flex flex-col md:flex-row gap-4 mb-6">
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm" 
-        (ngModelChange)="filterData()"
-        placeholder="Rechercher un hackathon..." 
-        class="w-full px-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
-    </div>
+  <!-- BARRE DE RECHERCHE ET FILTRES -->
+  <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl mb-12">
     
-    <div class="flex flex-wrap gap-2">
-      @for (cat of categories; track cat) {
-        <button 
-          (click)="setCategorie(cat)"
-          [ngClass]="selectedCategorie === cat ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'"
-          class="px-4 py-2 rounded-full text-sm font-medium transition-colors">
-          {{ cat }}
-        </button>
+    <!-- Recherche -->
+    <div class="relative mb-6">
+      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="filterData()" 
+             placeholder="Rechercher par nom, organisateur ou technologie..." 
+             class="w-full pl-12 pr-4 py-3 border border-slate-600 bg-slate-900 text-white rounded-xl focus:ring-2 focus:ring-indigo-500 transition-all">
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <!-- Filtre Ville -->
+      <div>
+        <label class="block text-sm font-medium text-slate-400 mb-2">📍 Filtrer par ville</label>
+        <select [(ngModel)]="selectedVille" (ngModelChange)="filterData()" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+          @for (ville of villes; track ville) {
+            <option [value]="ville">{{ ville }}</option>
+          }
+        </select>
+      </div>
+      <!-- Filtre Catégorie -->
+      <div>
+        <label class="block text-sm font-medium text-slate-400 mb-2">💻 Filtrer par domaine</label>
+        <select [(ngModel)]="selectedCategorie" (ngModelChange)="filterData()" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500">
+          @for (cat of categories; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Filtre Statut (Pills) -->
+    <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-700">
+      <button (click)="setStatut('TOUS')" [ngClass]="selectedStatut === 'TOUS' ? 'bg-indigo-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">Tous les événements</button>
+      <button (click)="setStatut('A_VENIR')" [ngClass]="selectedStatut === 'A_VENIR' ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">🔥 Inscriptions ouvertes</button>
+      <button (click)="setStatut('EN_COURS')" [ngClass]="selectedStatut === 'EN_COURS' ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">🟢 En cours</button>
+      <button (click)="setStatut('TERMINE')" [ngClass]="selectedStatut === 'TERMINE' ? 'bg-slate-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'" class="px-4 py-2 rounded-full text-sm font-medium transition-colors">🏆 Terminés</button>
+    </div>
+  </div>
+
+  <!-- RESULTATS -->
+  <div *ngIf="isLoading" class="text-center py-20 text-slate-400">
+    <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mb-4"></div>
+    <p>Chargement de l'agenda...</p>
+  </div>
+
+  <div *ngIf="!isLoading">
+    
+    <!-- Si aucun résultat -->
+    <div *ngIf="filteredHackathons.length === 0" class="text-center py-20 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed">
+      <p class="text-slate-400 text-lg">Aucun hackathon ne correspond à vos critères.</p>
+      <button (click)="setStatut('TOUS'); selectedVille='Toutes'; selectedCategorie='Toutes'; searchTerm=''; filterData();" class="mt-4 text-indigo-400 hover:text-indigo-300 underline">Réinitialiser les filtres</button>
+    </div>
+
+    <!-- Grille de résultats -->
+    <div *ngIf="filteredHackathons.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (hackathon of filteredHackathons; track hackathon.id) {
+        
+        <div [routerLink]="['/hackathons', hackathon.id]" 
+             class="cursor-pointer bg-slate-800 rounded-2xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all group flex flex-col h-full transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-indigo-500/20 relative">
+          
+          <!-- Badge Statut (Position Absolue sur l'image) -->
+          <div class="absolute top-4 right-4 z-10">
+            @if (hackathon.statut === 'A_VENIR') {
+              <span class="bg-emerald-500/90 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-sm">Inscriptions Ouvertes</span>
+            } @else if (hackathon.statut === 'EN_COURS') {
+              <span class="bg-red-500/90 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-sm animate-pulse">En Cours</span>
+            } @else {
+              <span class="bg-slate-700/90 text-slate-300 text-xs font-bold px-3 py-1 rounded-full shadow-lg backdrop-blur-sm">Terminé</span>
+            }
+          </div>
+
+          <!-- Image -->
+          <div class="h-52 w-full overflow-hidden bg-slate-900 relative">
+            @if (hackathon.imageUrl) {
+              <img [src]="hackathon.imageUrl" alt="Affiche" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            } @else {
+              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
+                <span class="text-4xl opacity-50">💻</span>
+              </div>
+            }
+            <!-- Dégradé pour lisibilité -->
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent"></div>
+          </div>
+
+          <!-- Contenu -->
+          <div class="p-6 flex-grow flex flex-col -mt-8 relative z-10">
+            <span class="inline-block px-3 py-1 rounded-md text-xs font-semibold bg-indigo-600 text-white mb-3 w-fit">
+              {{ hackathon.categorieNom }}
+            </span>
+            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight">
+              {{ hackathon.titre }}
+            </h3>
+            
+            <div class="flex items-center gap-2 text-sm text-slate-400 mb-4">
+              <span class="flex items-center gap-1">🏢 {{ hackathon.createurNom }}</span>
+            </div>
+
+            <p class="text-slate-400 text-sm mb-6 line-clamp-2 flex-grow">
+              {{ hackathon.description }}
+            </p>
+          </div>
+
+          <!-- Footer de carte -->
+          <div class="bg-slate-900/80 p-4 border-t border-slate-700 grid grid-cols-2 gap-2 text-sm mt-auto">
+            <div class="flex items-center gap-2 text-slate-300">
+              <span>📍</span> <span class="truncate">{{ hackathon.lieu }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-slate-300 justify-end">
+              <span>📅</span> <span>{{ hackathon.dateDebut | date:'dd MMM' }}</span>
+            </div>
+          </div>
+        </div>
+
       }
     </div>
-  </div>
-
-  <div *ngIf="isLoading" class="text-center py-20 text-slate-400">Chargement...</div>
-
-  <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    @for (hackathon of filteredHackathons; track hackathon.id) {
-      <app-hackathon-card [hackathon]="hackathon"></app-hackathon-card>
-    } @empty {
-      <div class="col-span-full text-center py-16 bg-slate-800/50 rounded-xl border border-slate-700 border-dashed">
-        <p class="text-slate-400">Aucun hackathon ne correspond à votre recherche.</p>
-      </div>
-    }
   </div>
 </div>

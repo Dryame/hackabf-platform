@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { HackathonService } from '../../../core/services/hackathon.service';
 import { Hackathon } from '../../../core/models/hackathon.model';
-import { HackathonCardComponent } from '../../../shared/components/hackathon-card/hackathon-card.component';
 
 @Component({
   selector: 'app-hackathon-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, HackathonCardComponent],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './hackathon-list.component.html'
 })
 export class HackathonListComponent implements OnInit {
@@ -16,9 +16,14 @@ export class HackathonListComponent implements OnInit {
   filteredHackathons: Hackathon[] = [];
   isLoading: boolean = true;
   
-  categories: string[] = ['Toutes', 'Data & IA', 'Cybersécurité', 'Dev & Ingénierie', 'Cloud & DevOps', 'UX/UI', 'Tech Émergente', 'Tech Business'];
-  selectedCategorie: string = 'Toutes';
+  // Filtres
   searchTerm: string = '';
+  selectedStatut: string = 'TOUS'; // TOUS, A_VENIR, EN_COURS, TERMINE
+  selectedCategorie: string = 'Toutes';
+  selectedVille: string = 'Toutes';
+
+  categories: string[] = ['Toutes', 'Data & IA', 'Cybersécurité', 'Dev & Ingénierie', 'Cloud & DevOps', 'UX/UI', 'Tech Émergente', 'Tech Business'];
+  villes: string[] = ['Toutes', 'Ouagadougou', 'Bobo-Dioulasso', 'Koudougou', 'En ligne'];
 
   constructor(private hackathonService: HackathonService) {}
 
@@ -26,7 +31,7 @@ export class HackathonListComponent implements OnInit {
     this.hackathonService.getHackathons(0, 50).subscribe({
       next: (response) => {
         this.hackathons = response.content;
-        this.filteredHackathons = this.hackathons;
+        this.filterData();
         this.isLoading = false;
       },
       error: () => this.isLoading = false
@@ -35,14 +40,18 @@ export class HackathonListComponent implements OnInit {
 
   filterData() {
     this.filteredHackathons = this.hackathons.filter(h => {
+      const matchSearch = h.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
+                          h.createurNom.toLowerCase().includes(this.searchTerm.toLowerCase());
+      const matchStatut = this.selectedStatut === 'TOUS' || h.statut === this.selectedStatut;
       const matchCat = this.selectedCategorie === 'Toutes' || h.categorieNom === this.selectedCategorie;
-      const matchSearch = h.titre.toLowerCase().includes(this.searchTerm.toLowerCase());
-      return matchCat && matchSearch;
+      const matchVille = this.selectedVille === 'Toutes' || h.lieu.includes(this.selectedVille);
+      
+      return matchSearch && matchStatut && matchCat && matchVille;
     });
   }
 
-  setCategorie(cat: string) {
-    this.selectedCategorie = cat;
+  setStatut(statut: string) {
+    this.selectedStatut = statut;
     this.filterData();
   }
 }

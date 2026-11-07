@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HackathonService } from '../../../core/services/hackathon.service';
 import { CategorieService } from '../../../core/services/categorie.service';
@@ -19,7 +19,6 @@ export class CreateHackathonComponent implements OnInit {
   isSubmitting = false;
   message = '';
 
-  // Variables pour l'image
   selectedFile: File | null = null;
   imagePreviewUrl: string | null = null;
 
@@ -36,25 +35,54 @@ export class CreateHackathonComponent implements OnInit {
       dateFin: ['', Validators.required],
       lieu: ['', Validators.required],
       format: ['PRESENTIEL', Validators.required],
+      categorieId: ['', Validators.required],
+      typeInscription: ['EXTERNE', Validators.required],
+      codeSecretHex: ['', [Validators.required, Validators.pattern('^[0-9A-Fa-f]{4,8}$')]],
       lienInscription: ['', Validators.required],
-      categorieId: ['', Validators.required]
+      // Le FormArray pour gérer les champs dynamiques
+      champsPersonnalises: this.fb.array([])
     });
   }
 
   ngOnInit() {
     this.categorieService.getAllCategories().subscribe(data => this.categories = data);
+
+    this.hackathonForm.get('typeInscription')?.valueChanges.subscribe(value => {
+      const lienControl = this.hackathonForm.get('lienInscription');
+      if (value === 'INTERNE') {
+        lienControl?.clearValidators();
+        lienControl?.setValue('');
+      } else {
+        lienControl?.setValidators([Validators.required]);
+      }
+      lienControl?.updateValueAndValidity();
+    });
   }
 
-  // Méthode déclenchée quand on choisit une image
+  // --- GESTION DES CHAMPS DYNAMIQUES ---
+  get champsPersonnalises() {
+    return this.hackathonForm.get('champsPersonnalises') as FormArray;
+  }
+
+  ajouterChamp() {
+    const champGroup = this.fb.group({
+      label: ['', Validators.required],
+      type: ['text', Validators.required] // text, number, url, email
+    });
+    this.champsPersonnalises.push(champGroup);
+  }
+
+  supprimerChamp(index: number) {
+    this.champsPersonnalises.removeAt(index);
+  }
+
+  // --- UPLOAD ET SOUMISSION ---
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      // Créer un aperçu de l'image
       const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreviewUrl = e.target.result;
-      };
+      reader.onload = (e: any) => this.imagePreviewUrl = e.target.result;
       reader.readAsDataURL(file);
     }
   }
@@ -63,37 +91,39 @@ export class CreateHackathonComponent implements OnInit {
     if (this.hackathonForm.invalid) return;
     this.isSubmitting = true;
 
-    // Si une image a été sélectionnée, on l'upload d'abord
     if (this.selectedFile) {
       this.hackathonService.uploadFile(this.selectedFile).subscribe({
-        next: (response) => {
-          // On ajoute l'URL de l'image renvoyée par le backend au formulaire
-          this.creerHackathon(`http://localhost:8080${response.url}`);
-        },
-        error: (err) => {
+        next: (response) => this.creerHackathon(`http://localhost:8080${response.url}`),
+        error: () => {
           this.message = "Erreur lors de l'upload de l'image.";
           this.isSubmitting = false;
         }
       });
     } else {
-      // Si pas d'image, on crée directement
       this.creerHackathon(null);
     }
   }
 
   creerHackathon(imageUrl: string | null) {
     const data = this.hackathonForm.value;
-    if (imageUrl) {
-      data.imageUrl = imageUrl;
+    
+    if (imageUrl) data.imageUrl = imageUrl;
+
+    // On convertit les champs personnalisés en JSON pour le Backend
+    if (data.champsPersonnalises && data.champsPersonnalises.length > 0) {
+      data.formulaireConfig = JSON.stringify(data.champsPersonnalises);
+    } else {
+      data.formulaireConfig = null;
     }
+    delete data.champsPersonnalises; // On envoie que le JSON
 
     this.hackathonService.createHackathon(data).subscribe({
       next: () => {
         alert('Hackathon créé avec succès !');
         this.router.navigate(['/hackathons']);
       },
-      error: (err) => {
-        this.message = "Erreur lors de la création. Vérifiez vos droits (Éditeur/Admin).";
+      error: () => {
+        this.message = "Erreur lors de la création. Vérifiez vos droits.";
         this.isSubmitting = false;
       }
     });

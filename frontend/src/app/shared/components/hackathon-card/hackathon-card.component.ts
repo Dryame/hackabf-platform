@@ -9,14 +9,11 @@ import { Hackathon } from '../../../core/models/hackathon.model';
   imports: [CommonModule, RouterLink],
   template: `
     <div [routerLink]="['/hackathons', hackathon.id]" class="cursor-pointer bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all group flex flex-col h-full transform hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10">
-      
-      <!-- Image de l'affiche (si elle existe) -->
       @if (hackathon.imageUrl) {
         <div class="h-48 w-full overflow-hidden">
           <img [src]="hackathon.imageUrl" alt="Affiche" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
         </div>
       }
-
       <div class="p-6 flex-grow">
         <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 mb-4">
           {{ hackathon.categorieNom }}

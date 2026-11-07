@@ -1,0 +1,227 @@
+<div class="max-w-7xl mx-auto py-10 px-4" *ngIf="hackathon">
+  
+  <!-- EN-TÊTE -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 pb-6 border-b border-slate-800">
+    <div>
+      <a routerLink="/mon-espace" class="text-slate-400 hover:text-white text-sm mb-3 inline-block">&larr; Retour au tableau de bord</a>
+      <div class="flex items-center gap-3 mb-2">
+        <h1 class="text-4xl font-black text-white">{{ hackathon.titre }}</h1>
+        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" 
+              [ngClass]="{
+                'bg-emerald-900/50 text-emerald-400 border border-emerald-700': hackathon.statut === 'A_VENIR',
+                'bg-red-900/50 text-red-400 border border-red-700': hackathon.statut === 'EN_COURS',
+                'bg-slate-800 text-slate-400 border border-slate-600': hackathon.statut === 'TERMINE'
+              }">
+          {{ hackathon.statut }}
+        </span>
+      </div>
+      <p class="text-slate-400 flex items-center gap-4 text-sm">
+        <span>📅 {{ hackathon.dateDebut | date:'dd MMM yyyy' }}</span>
+        <span>📍 {{ hackathon.lieu }}</span>
+        <span>🏷️ {{ hackathon.categorieNom }}</span>
+      </p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-3">
+      <a [routerLink]="['/hackathons', hackathon.id]" target="_blank" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-slate-700">
+        Voir la page publique ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- ONGLETS DE NAVIGATION INTERNE -->
+  <div class="flex gap-2 p-1.5 bg-slate-900/80 rounded-xl w-fit mb-8 border border-slate-800">
+    <button (click)="setTab('overview')" [ngClass]="activeTab === 'overview' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white'" class="px-5 py-2 rounded-lg font-medium text-sm transition-all">Vue d'ensemble</button>
+    <button (click)="setTab('participants')" [ngClass]="activeTab === 'participants' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white'" class="px-5 py-2 rounded-lg font-medium text-sm transition-all">Participants ({{ participants.length }})</button>
+    <button (click)="setTab('settings')" [ngClass]="activeTab === 'settings' ? 'bg-red-900/50 text-red-400 border border-red-900/50 shadow' : 'text-slate-400 hover:text-white'" class="px-5 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2">
+      <span>⚙️</span> Paramètres
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-20 text-slate-400">Chargement...</div>
+
+  <!-- ========================================== -->
+  <!-- CONTENU : ONGLET VUE D'ENSEMBLE (Bento Grid) -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && activeTab === 'overview'" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    
+    <!-- Carte Principale : Stats -->
+    <div class="md:col-span-2 bg-slate-800 rounded-3xl p-8 border border-slate-700 relative overflow-hidden flex flex-col justify-center">
+      <div class="absolute -right-10 -bottom-10 opacity-5"><span class="text-[200px]">👥</span></div>
+      <h2 class="text-xl font-bold text-slate-300 mb-2">Inscriptions Totales</h2>
+      <div class="flex items-end gap-4">
+        <span class="text-7xl font-black text-white">{{ participants.length }}</span>
+        <span class="text-slate-400 mb-2 pb-2">participants enregistrés</span>
+      </div>
+      <div class="mt-6 w-full bg-slate-900 rounded-full h-2">
+        <div class="bg-indigo-500 h-2 rounded-full" [style.width.%]="participants.length > 0 ? 50 : 0"></div>
+      </div>
+    </div>
+
+    <!-- Carte : Compte à rebours -->
+    <div class="bg-gradient-to-br from-indigo-900/40 to-slate-900 rounded-3xl p-8 border border-indigo-500/30 flex flex-col justify-center text-center">
+      <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-widest mb-2">Jours restants</h2>
+      <span class="text-6xl font-black text-white">{{ getJoursRestants() }}</span>
+      <p class="text-slate-400 text-sm mt-2">avant le début de l'événement</p>
+    </div>
+
+    <!-- Carte : Type de formulaire -->
+    <div class="bg-slate-800 rounded-3xl p-6 border border-slate-700">
+      <h3 class="text-slate-400 text-sm font-medium mb-1">Mode d'inscription</h3>
+      <p class="text-xl font-bold text-white">{{ hackathon.typeInscription === 'INTERNE' ? 'Formulaire Interne' : 'Lien Externe' }}</p>
+      <p class="text-xs text-slate-500 mt-2">{{ hackathon.typeInscription === 'INTERNE' ? 'Géré via HackaBF' : 'Redirection vers un site tiers' }}</p>
+    </div>
+
+    <!-- Carte : Actions rapides -->
+    <div class="md:col-span-2 bg-slate-800 rounded-3xl p-6 border border-slate-700 flex items-center justify-between">
+      <div>
+        <h3 class="text-white font-bold mb-1">Exporter les données</h3>
+        <p class="text-sm text-slate-400">Téléchargez la liste des participants pour le jour J.</p>
+      </div>
+      <button (click)="showExportModal = true" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold text-sm transition-colors flex items-center gap-2 shadow-lg shadow-emerald-500/20">
+        <span>📥</span> Exporter
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONTENU : ONGLET PARTICIPANTS -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && activeTab === 'participants'" class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
+    <div class="p-6 border-b border-slate-700 bg-slate-900/50 flex justify-between items-center">
+      <h2 class="text-xl font-bold text-white">Liste des inscrits</h2>
+      <button (click)="showExportModal = true" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2">
+        <span>📥</span> Exporter
+      </button>
+    </div>
+    
+    <table class="w-full text-left text-sm text-slate-300">
+      <thead class="text-xs uppercase bg-slate-900/80 text-slate-400">
+        <tr>
+          <th class="px-6 py-4">Participant</th>
+          <th class="px-6 py-4">Établissement</th>
+          <th class="px-6 py-4">Date</th>
+          <th class="px-6 py-4">Réponses</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of participants; track p.id) {
+          <tr class="border-b border-slate-700 hover:bg-slate-800/50">
+            <td class="px-6 py-4">
+              <div class="font-medium text-white">{{ p.etudiant.nomComplet }}</div>
+              <div class="text-xs text-slate-500">{{ p.etudiant.email }}</div>
+            </td>
+            <td class="px-6 py-4">{{ p.etudiant.etablissement || '-' }}</td>
+            <td class="px-6 py-4">{{ p.dateInscription | date:'dd/MM/yyyy' }}</td>
+            <td class="px-6 py-4">
+              @if (p.reponses) {
+                <span class="text-xs text-emerald-400 border border-emerald-500/30 bg-emerald-900/20 px-2 py-1 rounded">Données fournies</span>
+              } @else {
+                <span class="text-xs text-slate-500">Aucune</span>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="text-center py-12 text-slate-500">Aucun participant pour le moment.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- CONTENU : ONGLET PARAMÈTRES & SÉCURITÉ -->
+  <!-- ========================================== -->
+  <div *ngIf="!isLoading && activeTab === 'settings'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    <!-- Modification de statut -->
+    <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+      <h2 class="text-xl font-bold text-white mb-2">Statut de l'événement</h2>
+      <p class="text-slate-400 text-sm mb-6">Modifiez le statut pour informer les participants (ex: passer en "En cours" le jour J).</p>
+      
+      <div class="flex items-center gap-4 mb-6">
+        <span class="text-slate-300">Statut actuel :</span>
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-900 border border-slate-600">{{ hackathon.statut }}</span>
+      </div>
+
+      <button (click)="showStatusModal = true; nouveauStatut = hackathon.statut === 'A_VENIR' ? 'EN_COURS' : 'TERMINE'" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold transition-colors">
+        Changer le statut
+      </button>
+    </div>
+
+    <!-- Zone de danger -->
+    <div class="bg-red-900/10 rounded-2xl p-8 border border-red-900/50">
+      <h2 class="text-xl font-bold text-red-500 mb-2">Zone de Danger</h2>
+      <p class="text-slate-400 text-sm mb-6">La suppression de l'événement est définitive. Toutes les inscriptions seront perdues.</p>
+      
+      <button (click)="showDeleteModal = true" class="w-full bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/50 py-3 rounded-xl font-bold transition-colors">
+        Supprimer l'événement
+      </button>
+    </div>
+  </div>
+
+  <!-- MODALES (Export, Statut, Suppression) - Inchangées mais incluses -->
+  <div *ngIf="showExportModal" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-slate-600 shadow-2xl">
+      <h2 class="text-2xl font-bold text-white mb-4">Exporter la liste</h2>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-slate-300 mb-2">Colonnes à inclure :</label>
+        <div class="space-y-2">
+          @for (col of colonnesDisponibles; track col) {
+            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
+              <input type="checkbox" [checked]="colonnesSelectionnees.includes(col)" (change)="toggleColonne(col)" class="rounded bg-slate-900 border-slate-600 text-indigo-600 focus:ring-indigo-500">
+              {{ col }}
+            </label>
+          }
+        </div>
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-slate-300 mb-2">Format :</label>
+        <select [(ngModel)]="exportFormat" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 text-white rounded-lg">
+          <option value="PDF">Document PDF</option>
+        </select>
+      </div>
+      <div class="flex justify-end gap-3 mt-8">
+        <button (click)="showExportModal = false" class="px-5 py-2.5 text-slate-300 hover:text-white bg-slate-700 rounded-xl">Annuler</button>
+        <button (click)="exporter()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30">Générer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Statut -->
+  <div *ngIf="showStatusModal" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-slate-600 shadow-2xl">
+      <h2 class="text-2xl font-bold text-white mb-2">Action Sécurisée</h2>
+      <p class="text-slate-400 mb-4 text-sm">Saisissez votre code secret pour confirmer le passage au statut : <strong class="text-white">{{ nouveauStatut }}</strong></p>
+      <div *ngIf="errorMessage" class="bg-red-900/50 text-red-300 p-2 rounded mb-4 text-sm">{{ errorMessage }}</div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Code Secret (Hexadécimal)</label>
+          <input type="password" [(ngModel)]="codeSecretInput" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 font-mono tracking-widest text-center" placeholder="********">
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-8">
+        <button (click)="showStatusModal = false; codeSecretInput = ''" class="px-5 py-2.5 text-slate-300 hover:text-white bg-slate-700 rounded-xl">Annuler</button>
+        <button (click)="confirmerChangementStatut()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Suppression -->
+  <div *ngIf="showDeleteModal" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-8 max-w-md w-full border border-red-600/50 shadow-2xl">
+      <h2 class="text-2xl font-bold text-red-500 mb-2">Zone de Danger</h2>
+      <p class="text-slate-400 mb-4 text-sm">La suppression est irréversible. Saisissez votre code secret hexadécimal.</p>
+      <div *ngIf="errorMessage" class="bg-red-900/50 text-red-300 p-2 rounded mb-4 text-sm">{{ errorMessage }}</div>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Code Secret (Hexadécimal)</label>
+          <input type="password" [(ngModel)]="codeSecretInput" class="w-full px-4 py-2 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-red-500 font-mono tracking-widest text-center" placeholder="********">
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-8">
+        <button (click)="showDeleteModal = false; codeSecretInput = ''" class="px-5 py-2.5 text-slate-300 hover:text-white bg-slate-700 rounded-xl">Annuler</button>
+        <button (click)="confirmerSuppression()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30">Détruire l'événement</button>
+      </div>
+    </div>
+  </div>
+
+</div>

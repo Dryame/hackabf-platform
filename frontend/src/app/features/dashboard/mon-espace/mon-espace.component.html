@@ -1,0 +1,172 @@
+<div class="max-w-7xl mx-auto py-12 px-4">
+  
+  <div class="flex flex-col md:flex-row justify-between items-end mb-10 pb-6 border-b border-slate-800">
+    <div>
+      <h1 class="text-4xl font-black text-white tracking-tight">Tableau de Bord</h1>
+      <p class="text-slate-400 mt-2 text-lg">Espace personnel et gestion des événements.</p>
+    </div>
+    <a routerLink="/hackathons" class="text-slate-300 hover:text-white bg-slate-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors mt-4 md:mt-0">
+      Explorer le catalogue
+    </a>
+  </div>
+
+  <!-- BANDEAU DE STATISTIQUES -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+    <div class="bg-gradient-to-br from-indigo-900/40 to-slate-900 border border-indigo-500/30 p-6 rounded-2xl relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-4 opacity-10"><span class="text-6xl">🎟️</span></div>
+      <p class="text-sm font-medium text-indigo-400 mb-1">Mes Inscriptions</p>
+      <h3 class="text-4xl font-black text-white">{{ totalInscriptions }}</h3>
+      <p class="text-xs text-slate-400 mt-2">Événements à venir</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-emerald-900/40 to-slate-900 border border-emerald-500/30 p-6 rounded-2xl relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-4 opacity-10"><span class="text-6xl">🚀</span></div>
+      <p class="text-sm font-medium text-emerald-400 mb-1">Hackathons Créés</p>
+      <h3 class="text-4xl font-black text-white">{{ totalPublications }}</h3>
+      <p class="text-xs text-slate-400 mt-2">En tant qu'organisateur</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-yellow-900/40 to-slate-900 border border-yellow-500/30 p-6 rounded-2xl relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-4 opacity-10"><span class="text-6xl">🏆</span></div>
+      <p class="text-sm font-medium text-yellow-500 mb-1">Vainqueurs Désignés</p>
+      <h3 class="text-4xl font-black text-white">{{ totalVainqueurs }}</h3>
+      <p class="text-xs text-slate-400 mt-2">Projets récompensés</p>
+    </div>
+  </div>
+
+  <!-- ONGLETS -->
+  <div class="flex gap-2 p-2 bg-slate-900/50 rounded-xl w-fit mb-8 border border-slate-800">
+    <button (click)="setTab('inscriptions')" 
+            [ngClass]="activeTab === 'inscriptions' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400 hover:text-white'"
+            class="px-6 py-2.5 rounded-lg font-medium text-sm transition-all">
+      Mes Tickets d'Accès
+    </button>
+    <button (click)="setTab('publications')" 
+            [ngClass]="activeTab === 'publications' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400 hover:text-white'"
+            class="px-6 py-2.5 rounded-lg font-medium text-sm transition-all">
+      Gestion des Événements
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-20 text-slate-400">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-4"></div>
+    <p>Chargement des données...</p>
+  </div>
+
+  <!-- CONTENU : ONGLET INSCRIPTIONS -->
+  <div *ngIf="!isLoading && activeTab === 'inscriptions'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      @for (inscription of mesInscriptions; track inscription.id) {
+        <div class="relative bg-slate-800 rounded-2xl flex flex-col md:flex-row overflow-hidden border border-slate-700 hover:border-indigo-500 transition-colors">
+          <div class="bg-indigo-900/30 p-6 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-slate-700 border-dashed min-w-[140px]">
+            <span class="text-4xl mb-2">🎟️</span>
+            <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest text-center">Event Pass</span>
+          </div>
+          <div class="p-6 flex-grow flex flex-col relative">
+            <div class="hidden md:block absolute -top-3 left-[-10px] w-6 h-6 bg-slate-900 rounded-full"></div>
+            <div class="hidden md:block absolute -bottom-3 left-[-10px] w-6 h-6 bg-slate-900 rounded-full"></div>
+            <div class="flex justify-between items-start mb-2">
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-900/50 text-emerald-300 border border-emerald-700/50 uppercase tracking-wide">Accès Confirmé</span>
+              <span class="text-xs text-slate-500">{{ inscription.dateInscription | date:'dd MMM yyyy' }}</span>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">{{ inscription.hackathon.titre }}</h3>
+            <div class="mt-auto pt-4 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-slate-500 block text-xs">Lieu</span>
+                <span class="text-slate-300 font-medium">📍 {{ inscription.hackathon.lieu }}</span>
+              </div>
+              <div>
+                <span class="text-slate-500 block text-xs">Date</span>
+                <span class="text-slate-300 font-medium">📅 {{ inscription.hackathon.dateDebut | date:'dd MMM' }}</span>
+              </div>
+            </div>
+            <a [routerLink]="['/hackathons', inscription.hackathon.id]" class="mt-4 text-center w-full bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-medium transition-colors">
+              Voir l'événement
+            </a>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-span-full text-center py-16 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed">
+          <p class="text-slate-400 mb-4">Vous n'avez aucun ticket d'accès pour le moment.</p>
+          <a routerLink="/hackathons" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-500 transition-colors">Découvrir les événements</a>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- CONTENU : ONGLET PUBLICATIONS -->
+  <div *ngIf="!isLoading && activeTab === 'publications'">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- LA BOUCLE CORRIGÉE ICI -->
+      @for (hackathon of mesPublications; track hackathon.id) {
+        <div class="bg-slate-800 rounded-2xl border border-slate-700 hover:border-emerald-500/50 transition-all flex flex-col overflow-hidden">
+          <div class="p-6 flex-grow">
+            <div class="flex justify-between items-start mb-4">
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-600">
+                {{ hackathon.categorieNom }}
+              </span>
+              @if (hackathon.vainqueur) {
+                <span class="text-xs text-yellow-500 font-bold bg-yellow-500/10 px-2 py-1 rounded border border-yellow-500/20">Terminé</span>
+              } @else {
+                <span class="text-xs text-emerald-400 font-bold bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">Actif</span>
+              }
+            </div>
+            <div class="flex justify-between items-start mb-1"><h3 class="text-xl font-bold text-white line-clamp-2">{{ hackathon.titre }}</h3>@if (!hackathon.estValide) { <span class="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded whitespace-nowrap ml-2">En attente</span> }</div>
+            <p class="text-slate-400 text-sm mb-4">{{ hackathon.dateDebut | date:'dd MMMM yyyy' }}</p>
+          </div>
+
+          <div class="bg-slate-900/50 p-4 border-t border-slate-700">
+            @if (hackathon.vainqueur) {
+              <div class="bg-yellow-500/10 border border-yellow-500/30 p-2 rounded-lg mb-3 flex items-center justify-between">
+                <span class="text-xs text-yellow-500 font-bold">🏆 Vainqueur</span>
+                <span class="text-sm text-white font-medium truncate ml-2">{{ hackathon.vainqueur }}</span>
+              </div>
+            }
+            
+            <!-- LE BOUTON GÉRER EST MAINTENANT DANS LA BOUCLE -->
+            <a [routerLink]="['/gerer', hackathon.id]" class="w-full mb-2 block text-center bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg transition-colors text-sm font-bold">
+              ⚙️ Gérer (Cockpit)
+            </a>
+            
+            <button (click)="ouvrirModaleVainqueur(hackathon)" class="w-full bg-slate-700 hover:bg-emerald-600 text-white py-2.5 rounded-lg transition-colors text-sm font-bold flex justify-center items-center gap-2">
+              <span>🏆</span> {{ hackathon.vainqueur ? 'Modifier le vainqueur' : 'Désigner le vainqueur' }}
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="col-span-full text-center py-16 bg-slate-800/50 rounded-2xl border border-slate-700 border-dashed">
+          <p class="text-slate-400 mb-4">Vous n'avez publié aucun hackathon.</p>
+          <a routerLink="/publier" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-indigo-500 transition-colors">Créer un événement</a>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- MODALE VAINQUEUR -->
+  <div *ngIf="selectedHackathon" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-md">
+    <div class="bg-slate-800 rounded-3xl p-8 max-w-md w-full border border-slate-600 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-yellow-600"></div>
+      <div class="text-center mb-6">
+        <span class="text-4xl block mb-2">🏆</span>
+        <h2 class="text-2xl font-bold text-white">Désignation du Vainqueur</h2>
+        <p class="text-slate-400 text-sm mt-1">Hackathon : <span class="text-white font-medium">{{ selectedHackathon.titre }}</span></p>
+      </div>
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Nom de l'équipe / du projet</label>
+          <input type="text" [(ngModel)]="nomVainqueur" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-yellow-500" placeholder="Ex: Équipe Alpha">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Lien de l'image (Optionnel)</label>
+          <input type="text" [(ngModel)]="imageVainqueur" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-yellow-500" placeholder="https://...">
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 mt-8">
+        <button (click)="fermerModale()" class="px-5 py-2.5 text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 rounded-xl transition-colors font-medium">Annuler</button>
+        <button (click)="enregistrerVainqueur()" class="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold rounded-xl transition-colors shadow-lg shadow-yellow-500/30">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+</div>

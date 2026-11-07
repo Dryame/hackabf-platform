@@ -33,15 +33,28 @@ public class Hackathon {
     private String lienInscription;
     
     private String statut = "A_VENIR";
-    
+
     @Column(name = "vainqueur")
     private String vainqueur;
-
+    
     @Column(name = "image_vainqueur", length = 500)
     private String imageVainqueur;
 
     @Column(name = "image_url", length = 500)
     private String imageUrl;
+
+    @Column(name = "type_inscription")
+    private String typeInscription = "EXTERNE";
+
+    // LE CHAMP QUI MANQUAIT POUR LE FORMULAIRE DYNAMIQUE
+    @Column(columnDefinition = "TEXT")
+    private String formulaireConfig;
+
+    @Column(name = "code_secret_hex")
+    private String codeSecretHex;
+
+    @Column(name = "est_valide")
+    private boolean estValide = false;
 
     @ManyToOne
     @JoinColumn(name = "categorie_id")

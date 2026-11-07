@@ -1,14 +1,8 @@
 <div class="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans">
-  
-  <!-- La barre de navigation -->
   <app-navbar></app-navbar>
-  
-  <!-- Le contenu dynamique des pages -->
-  <main class="flex-grow container mx-auto px-4 py-8">
+  <!-- On retire le container pour que l'image prenne 100% de la largeur -->
+  <main class="flex-grow">
     <router-outlet></router-outlet>
   </main>
-  
-  <!-- Le pied de page -->
   <app-footer></app-footer>
-  
 </div>

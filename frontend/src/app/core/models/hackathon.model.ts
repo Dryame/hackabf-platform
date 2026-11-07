@@ -13,4 +13,7 @@ export interface Hackathon {
   vainqueur?: string;
   imageVainqueur?: string;
   imageUrl?: string;
+  typeInscription?: string;
+  estValide?: boolean;
+  formulaireConfig?: string;
 }

@@ -19,4 +19,7 @@ public class HackathonResponse {
     private String vainqueur;
     private String imageVainqueur;
     private String imageUrl;
+    private String typeInscription;
+    private String formulaireConfig;
+    private boolean estValide;
 }
