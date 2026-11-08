@@ -46,6 +46,20 @@ public class HackathonController {
         return ResponseEntity.ok(hackathonService.getHackathonsByUser(email));
     }
 
+    @PostMapping("/hackathons")
+    @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
+    public ResponseEntity<HackathonResponse> createHackathon(@Valid @RequestBody HackathonRequest request) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(hackathonService.createHackathon(request, userEmail));
+    }
+
+    @PutMapping("/hackathons/{id}/vainqueur")
+    @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
+    public ResponseEntity<HackathonResponse> designerVainqueur(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(hackathonService.designerVainqueur(id, body.get("vainqueur"), body.get("imageVainqueur"), email));
+    }
+
     @PutMapping("/hackathons/{id}/statut")
     @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
     public ResponseEntity<HackathonResponse> changerStatut(@PathVariable String id, @RequestBody Map<String, String> body) {
@@ -61,29 +75,25 @@ public class HackathonController {
         return ResponseEntity.ok(Map.of("message", "Supprimé avec succès"));
     }
 
-    @GetMapping("/admin/hackathons/en-attente")
+    // ==========================================
+    // NOUVELLES ROUTES ADMIN (Modération)
+    // ==========================================
+    @GetMapping("/admin/hackathons")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<HackathonResponse>> getEnAttente() {
-        return ResponseEntity.ok(hackathonService.getHackathonsEnAttente());
+    public ResponseEntity<List<HackathonResponse>> getAllHackathonsAdmin() {
+        return ResponseEntity.ok(hackathonService.getAllHackathonsAdmin());
     }
 
-    @PutMapping("/admin/hackathons/{id}/valider")
+    @DeleteMapping("/admin/hackathons/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<HackathonResponse> valider(@PathVariable String id) {
-        return ResponseEntity.ok(hackathonService.validerHackathon(id));
+    public ResponseEntity<?> supprimerHackathonAdmin(@PathVariable String id) {
+        hackathonService.supprimerHackathonAdmin(id);
+        return ResponseEntity.ok(Map.of("message", "Hackathon supprimé par l'admin"));
     }
 
-    @PostMapping("/hackathons")
-    @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
-    public ResponseEntity<HackathonResponse> createHackathon(@Valid @RequestBody HackathonRequest request) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(hackathonService.createHackathon(request, userEmail));
-    }
-
-    @PutMapping("/hackathons/{id}/vainqueur")
-    @PreAuthorize("hasAnyRole('EDITEUR', 'ADMIN')")
-    public ResponseEntity<HackathonResponse> designerVainqueur(@PathVariable String id, @RequestBody Map<String, String> body) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return ResponseEntity.ok(hackathonService.designerVainqueur(id, body.get("vainqueur"), body.get("imageVainqueur"), email));
+    @PutMapping("/admin/hackathons/{id}/statut")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<HackathonResponse> changerStatutAdmin(@PathVariable String id, @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(hackathonService.changerStatutAdmin(id, body.get("statut")));
     }
 }

@@ -10,10 +10,19 @@
     <nav class="flex-grow p-4 space-y-2">
       <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2">Administration</p>
       
-      <a routerLink="/admin" class="flex items-center gap-3 px-3 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-bold transition-colors">
+      <button (click)="setTab('UTILISATEURS')" 
+              [ngClass]="activeTab === 'UTILISATEURS' ? 'bg-indigo-600/10 text-indigo-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+              class="w-full flex items-center gap-3 px-3 py-3 rounded-xl font-bold transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
         Gestion des Utilisateurs
-      </a>
+      </button>
+
+      <button (click)="setTab('HACKATHONS')" 
+              [ngClass]="activeTab === 'HACKATHONS' ? 'bg-emerald-600/10 text-emerald-400' : 'text-slate-400 hover:bg-slate-800 hover:text-white'"
+              class="w-full flex items-center gap-3 px-3 py-3 rounded-xl font-bold transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        Modération Hackathons
+      </button>
 
       <div class="pt-8">
         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2">Retour</p>
@@ -30,10 +39,14 @@
     
     <header class="h-20 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 shrink-0">
       <div>
-        <h1 class="text-2xl font-black text-white">Espace Administrateur</h1>
-        <p class="text-sm text-slate-400">Gérez les rôles et les accès à la plateforme.</p>
+        <h1 class="text-2xl font-black text-white">
+          {{ activeTab === 'UTILISATEURS' ? 'Gestion des Utilisateurs' : 'Modération des Hackathons' }}
+        </h1>
+        <p class="text-sm text-slate-400">
+          {{ activeTab === 'UTILISATEURS' ? 'Gérez les rôles et les accès.' : 'Supervisez et modérez les événements de la plateforme.' }}
+        </p>
       </div>
-      <button (click)="chargerUtilisateurs()" class="p-2 text-slate-400 hover:text-white bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold">
+      <button (click)="chargerDonnees()" class="p-2 text-slate-400 hover:text-white bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         Actualiser
       </button>
@@ -41,7 +54,6 @@
 
     <div class="flex-1 overflow-y-auto p-8">
       
-      <!-- MESSAGE D'ERREUR -->
       <div *ngIf="errorMessage" class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-xl mb-6 flex items-center gap-3">
         <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
         {{ errorMessage }}
@@ -49,27 +61,19 @@
 
       <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
         
-        <div class="p-6 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2">
-            <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-            Liste des utilisateurs ({{ utilisateurs.length }})
-          </h2>
-        </div>
-
-        <!-- SKELETON LOADER (Pendant le chargement) -->
+        <!-- SKELETON LOADER -->
         <div *ngIf="isLoading" class="p-6 space-y-4 animate-pulse">
           <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
           <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
           <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
-          <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
         </div>
 
-        <!-- TABLEAU DES UTILISATEURS -->
-        <table *ngIf="!isLoading && utilisateurs.length > 0" class="w-full text-left text-sm text-slate-300">
+        <!-- TABLEAU UTILISATEURS -->
+        <table *ngIf="!isLoading && activeTab === 'UTILISATEURS' && utilisateurs.length > 0" class="w-full text-left text-sm text-slate-300">
           <thead class="text-xs uppercase bg-slate-900/50 text-slate-400 border-b border-slate-700">
             <tr>
               <th class="px-6 py-4">Utilisateur</th>
-              <th class="px-6 py-4">Rôle actuel</th>
+              <th class="px-6 py-4">Rôle</th>
               <th class="px-6 py-4">Statut</th>
               <th class="px-6 py-4 text-right">Action</th>
             </tr>
@@ -79,9 +83,7 @@
               <tr class="hover:bg-slate-800/30 transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white">
-                      {{ user.nomComplet.substring(0, 2).toUpperCase() }}
-                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white">{{ user.nomComplet.substring(0, 2).toUpperCase() }}</div>
                     <div>
                       <div class="font-bold text-white">{{ user.nomComplet }}</div>
                       <div class="text-xs text-slate-500">{{ user.email }}</div>
@@ -89,7 +91,7 @@
                   </div>
                 </td>
                 <td class="px-6 py-4">
-                  <select (change)="changerRole(user.id, $event)" class="bg-slate-900 border border-slate-600 text-sm rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
+                  <select (change)="changerRole(user.id, $event)" class="bg-slate-900 border border-slate-600 text-sm rounded-lg p-2 focus:ring-indigo-500">
                     <option value="ROLE_ETUDIANT" [selected]="user.roles.includes('ROLE_ETUDIANT')">Étudiant</option>
                     <option value="ROLE_EDITEUR" [selected]="user.roles.includes('ROLE_EDITEUR')">Éditeur</option>
                     <option value="ROLE_ADMIN" [selected]="user.roles.includes('ROLE_ADMIN')">Admin</option>
@@ -97,20 +99,46 @@
                 </td>
                 <td class="px-6 py-4">
                   @if (user.estActif) {
-                    <span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Actif
-                    </span>
+                    <span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Actif</span>
                   } @else {
-                    <span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
-                      <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Banni
-                    </span>
+                    <span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-md text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Banni</span>
                   }
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <button (click)="toggleStatus(user.id)" class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors"
-                    [ngClass]="user.estActif ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white'">
-                    {{ user.estActif ? 'Bannir' : 'Réactiver' }}
-                  </button>
+                  <button (click)="toggleStatus(user.id)" class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors" [ngClass]="user.estActif ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white'">{{ user.estActif ? 'Bannir' : 'Réactiver' }}</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- TABLEAU HACKATHONS -->
+        <table *ngIf="!isLoading && activeTab === 'HACKATHONS' && hackathons.length > 0" class="w-full text-left text-sm text-slate-300">
+          <thead class="text-xs uppercase bg-slate-900/50 text-slate-400 border-b border-slate-700">
+            <tr>
+              <th class="px-6 py-4">Événement</th>
+              <th class="px-6 py-4">Organisateur</th>
+              <th class="px-6 py-4">Statut</th>
+              <th class="px-6 py-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/50">
+            @for (h of hackathons; track h.id) {
+              <tr class="hover:bg-slate-800/30 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="font-bold text-white">{{ h.titre }}</div>
+                  <div class="text-xs text-slate-500">ID: {{ h.id.substring(0,8) }}...</div>
+                </td>
+                <td class="px-6 py-4">{{ h.createurNom }}</td>
+                <td class="px-6 py-4">
+                  <select (change)="changerStatutHackathon(h.id, $event)" class="bg-slate-900 border border-slate-600 text-sm rounded-lg p-2 focus:ring-emerald-500">
+                    <option value="A_VENIR" [selected]="h.statut === 'A_VENIR'">À venir</option>
+                    <option value="EN_COURS" [selected]="h.statut === 'EN_COURS'">En cours</option>
+                    <option value="TERMINE" [selected]="h.statut === 'TERMINE'">Terminé</option>
+                  </select>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button (click)="supprimerHackathon(h.id)" class="px-3 py-1.5 rounded-lg border bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white text-xs font-bold transition-colors">Supprimer</button>
                 </td>
               </tr>
             }
@@ -118,8 +146,8 @@
         </table>
 
         <!-- ETAT VIDE -->
-        <div *ngIf="!isLoading && utilisateurs.length === 0" class="text-center py-20">
-          <p class="text-slate-400">Aucun utilisateur trouvé.</p>
+        <div *ngIf="!isLoading && ((activeTab === 'UTILISATEURS' && utilisateurs.length === 0) || (activeTab === 'HACKATHONS' && hackathons.length === 0))" class="text-center py-20">
+          <p class="text-slate-400">Aucune donnée trouvée.</p>
         </div>
 
       </div>

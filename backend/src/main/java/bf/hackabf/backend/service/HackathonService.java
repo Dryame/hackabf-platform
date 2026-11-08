@@ -45,9 +45,6 @@ public class HackathonService {
     }
 
     public HackathonResponse createHackathon(HackathonRequest request, String userEmail) {
-        if (request.getImageUrl() == null || request.getImageUrl().isEmpty()) {
-            throw new RuntimeException("L'affiche du hackathon est obligatoire.");
-        }
         Utilisateur createur = utilisateurRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
         
         Categorie categorie = null;
@@ -76,7 +73,6 @@ public class HackathonService {
         return mapToResponse(saved);
     }
 
-    // MÉTHODES AJOUTÉES POUR L'ADMIN
     public List<HackathonResponse> getHackathonsEnAttente() {
         return hackathonRepository.findByEstValideFalse().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
@@ -108,6 +104,24 @@ public class HackathonService {
         if (!hackathon.getCreateur().getEmail().equals(email)) throw new RuntimeException("Non autorisé.");
         if (!hackathon.getCodeSecretHex().equals(codeSecret)) throw new RuntimeException("Code secret invalide.");
         hackathonRepository.delete(hackathon);
+    }
+
+    // ==========================================
+    // NOUVELLES MÉTHODES ADMIN
+    // ==========================================
+    public List<HackathonResponse> getAllHackathonsAdmin() {
+        return hackathonRepository.findAll().stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    public void supprimerHackathonAdmin(String id) {
+        if (!hackathonRepository.existsById(id)) throw new RuntimeException("Hackathon introuvable");
+        hackathonRepository.deleteById(id);
+    }
+
+    public HackathonResponse changerStatutAdmin(String id, String nouveauStatut) {
+        Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
+        hackathon.setStatut(nouveauStatut);
+        return mapToResponse(hackathonRepository.save(hackathon));
     }
 
     private HackathonResponse mapToResponse(Hackathon hackathon) {
