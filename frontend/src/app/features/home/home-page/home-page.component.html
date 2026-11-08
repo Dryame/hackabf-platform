@@ -1,23 +1,26 @@
-<div class="flex flex-col pb-12">
+<div class="flex flex-col pb-12 bg-slate-900 min-h-screen">
   
-  <!-- SECTION HERO : L'image définit sa propre hauteur -->
+  <!-- SECTION HERO (Image entièrement visible) -->
   <section class="relative w-full overflow-hidden bg-slate-950">
     
-    <!-- L'image entière (w-full h-auto) : Elle n'est plus coupée -->
-    <img src="images/arriere_plan.png" alt="Arrière plan" class="w-full h-auto block">
-
-    <!-- Voile sombre pour la lisibilité (couvre exactement l'image) -->
+    <!-- On utilise une balise img classique pour ne pas couper les bords -->
+    <img src="images/arriere_plan.png" alt="Communauté Tech BF" class="w-full h-auto block">
+    
+    <!-- Voile sombre uniforme (pas de dégradé) pour la lisibilité du texte -->
     <div class="absolute inset-0 bg-slate-950/60"></div>
 
-    <!-- Le contenu centré par dessus l'image -->
+    <!-- Contenu centré par-dessus l'image -->
     <div class="absolute inset-0 flex items-center justify-center px-4">
       <div class="text-center max-w-4xl mx-auto mt-[-50px]">
+        <span class="inline-block py-1 px-3 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-sm font-bold mb-6 backdrop-blur-sm">
+          🇧🇫 Plateforme Nationale
+        </span>
         <h1 class="text-5xl md:text-7xl font-black text-white tracking-tight mb-6 drop-shadow-2xl">
           L'écosystème tech<br>
-          <span class="text-indigo-400">du Burkina Faso</span>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">du Burkina Faso</span>
         </h1>
         
-        <p class="text-xl md:text-2xl text-slate-200 mb-10 font-medium drop-shadow-lg">
+        <p class="text-xl md:text-2xl text-slate-200 mb-10 font-medium drop-shadow-lg max-w-2xl mx-auto">
           Découvrez et participez aux meilleurs Hackathons du pays.
         </p>
         
@@ -28,79 +31,112 @@
     </div>
   </section>
 
-  <!-- ESPACE POUR LE RESTE DE LA PAGE -->
-  <div class="max-w-7xl mx-auto w-full px-4 mt-16">
-    
-    <!-- SECTION PROCHAINS HACKATHONS -->
-    <section>
-      <div class="flex justify-between items-end mb-8 border-b border-slate-800 pb-4">
-        <div>
-          <h2 class="text-3xl font-bold text-white">À ne pas manquer</h2>
-          <p class="text-slate-400 mt-2">Les prochains événements tech.</p>
+  <!-- SECTION PROCHAINS HACKATHONS (Thème sombre) -->
+  <section class="max-w-7xl mx-auto w-full px-4 mt-16 relative z-30">
+    <div class="flex justify-between items-end mb-8 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-3xl font-bold text-white">À ne pas manquer</h2>
+        <p class="text-slate-400 mt-2">Les prochains événements tech.</p>
+      </div>
+      <a routerLink="/hackathons" class="text-indigo-400 hover:text-indigo-300 font-medium">Voir tout &rarr;</a>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-12 text-slate-400">Chargement...</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" *ngIf="!isLoading">
+      @for (hackathon of prochainsHackathons; track hackathon.id) {
+        <div [routerLink]="['/hackathons', hackathon.id]" class="cursor-pointer bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all group flex flex-col transform hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10">
+          <div class="p-6 flex-grow">
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 mb-4">
+              {{ hackathon.categorieNom }}
+            </span>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors line-clamp-2">
+              {{ hackathon.titre }}
+            </h3>
+            <p class="text-slate-400 text-sm mb-4 line-clamp-3">
+              {{ hackathon.description }}
+            </p>
+          </div>
+          <div class="bg-slate-900/50 p-4 border-t border-slate-700 flex justify-between items-center text-sm">
+            <span class="text-slate-300 flex items-center gap-1">📍 {{ hackathon.lieu }}</span>
+            <span class="text-slate-400">{{ hackathon.dateDebut | date:'dd MMM yyyy' }}</span>
+          </div>
         </div>
-        <a routerLink="/hackathons" class="text-indigo-400 hover:text-indigo-300 font-medium">Voir tout &rarr;</a>
-      </div>
+      } @empty {
+        <div class="col-span-3 text-center py-12 bg-slate-800/50 rounded-xl border border-slate-700 border-dashed">
+          <p class="text-slate-400">Aucun hackathon n'est prévu pour le moment.</p>
+        </div>
+      }
+    </div>
+  </section>
 
-      <div *ngIf="isLoading" class="text-center py-12 text-slate-400">Chargement...</div>
+  <!-- SECTION PALMARÈS (Podium Sombre) -->
+  <section *ngIf="vainqueurs.length > 0" class="max-w-5xl mx-auto w-full px-4 mt-24">
+    <div class="text-center mb-16 border-b border-slate-800 pb-6">
+      <h2 class="text-3xl font-black text-white flex items-center justify-center gap-2">
+        🏆 Le Palmarès
+      </h2>
+      <p class="text-slate-400 mt-2">Les esprits brillants qui ont marqué l'écosystème.</p>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8" *ngIf="!isLoading">
-        @for (hackathon of prochainsHackathons; track hackathon.id) {
-          <div [routerLink]="['/hackathons', hackathon.id]" class="cursor-pointer bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all group flex flex-col transform hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10">
-            <div class="p-6 flex-grow">
-              <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-indigo-900/50 text-indigo-300 border border-indigo-700/50 mb-4">
-                {{ hackathon.categorieNom }}
-              </span>
-              <h3 class="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors line-clamp-2">
-                {{ hackathon.titre }}
-              </h3>
-              <p class="text-slate-400 text-sm mb-4 line-clamp-3">
-                {{ hackathon.description }}
-              </p>
-            </div>
-            <div class="bg-slate-900/50 p-4 border-t border-slate-700 flex justify-between items-center text-sm">
-              <span class="text-slate-300 flex items-center gap-1">📍 {{ hackathon.lieu }}</span>
-              <span class="text-slate-400">{{ hackathon.dateDebut | date:'dd MMM yyyy' }}</span>
-            </div>
+    <!-- Le Podium -->
+    <div class="flex justify-center items-end gap-2 md:gap-6 pt-10">
+      
+      <!-- 2ème Place -->
+      @if (vainqueurs.length > 1) {
+        <div class="flex flex-col items-center w-1/3 max-w-[200px]">
+          <div class="relative mb-4">
+            <img [src]="vainqueurs[1].imageVainqueur || 'https://ui-avatars.com/api/?name=' + vainqueurs[1].vainqueur + '&background=475569&color=fff'" class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-slate-400 object-cover bg-slate-800 shadow-xl">
+            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-slate-400 text-slate-900 text-xs font-black px-3 py-1 rounded-full border-2 border-slate-800">2e</div>
           </div>
-        } @empty {
-          <div class="col-span-3 text-center py-12 bg-slate-800/50 rounded-xl border border-slate-700 border-dashed">
-            <p class="text-slate-400">Aucun hackathon n'est prévu pour le moment.</p>
+          <div class="bg-slate-800 border border-slate-700 rounded-t-2xl w-full p-4 text-center h-32 flex flex-col justify-center shadow-lg">
+            <h4 class="font-bold text-white text-sm line-clamp-2">{{ vainqueurs[1].vainqueur }}</h4>
+            <p class="text-xs text-slate-400 mt-1">{{ vainqueurs[1].titre }}</p>
           </div>
-        }
-      </div>
-    </section>
+        </div>
+      }
 
-    <!-- SECTION VAINQUEURS (HALL OF FAME) -->
-    <section *ngIf="vainqueurs.length > 0" class="mt-20">
-      <div class="mb-8 border-b border-slate-800 pb-4 text-center">
-        <h2 class="text-3xl font-bold text-yellow-500 flex items-center justify-center gap-2">
-          🏆 Le Hall of Fame
-        </h2>
-        <p class="text-slate-400 mt-2">Découvrez les esprits brillants qui ont marqué l'histoire de nos hackathons.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        @for (vainqueur of vainqueurs; track vainqueur.id) {
-          <div class="bg-gradient-to-b from-slate-800 to-slate-900 rounded-xl p-1 border border-yellow-600/30 relative overflow-hidden group hover:border-yellow-500 transition-all hover:shadow-xl hover:shadow-yellow-500/10 transform hover:-translate-y-1">
-            <div class="absolute top-0 right-0 bg-yellow-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10 shadow-lg">
-              Vainqueur
-            </div>
-            <div class="bg-slate-900/90 h-full w-full rounded-lg p-6 flex flex-col items-center text-center">
-              @if (vainqueur.imageVainqueur) {
-                <img [src]="vainqueur.imageVainqueur" alt="Photo" class="w-24 h-24 object-cover rounded-full mb-4 border-2 border-yellow-500 shadow-lg shadow-yellow-500/20">
-              } @else {
-                <div class="w-24 h-24 bg-yellow-500/20 rounded-full flex items-center justify-center text-4xl mb-4 border border-yellow-500/50">🥇</div>
-              }
-              <h3 class="text-xl font-bold text-white mb-1">{{ vainqueur.vainqueur }}</h3>
-              <p class="text-sm text-yellow-500 font-medium mb-4">Grand gagnant</p>
-              <div class="bg-slate-800 px-4 py-3 rounded-lg w-full mb-4">
-                <span class="text-xs text-slate-400 block mb-1">Lors du Hackathon :</span>
-                <span class="text-sm text-white font-semibold">{{ vainqueur.titre }}</span>
-              </div>
-            </div>
+      <!-- 1ère Place -->
+      @if (vainqueurs.length > 0) {
+        <div class="flex flex-col items-center w-1/3 max-w-[240px] z-10">
+          <div class="relative mb-4">
+            <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 text-5xl drop-shadow-xl">👑</div>
+            <img [src]="vainqueurs[0].imageVainqueur || 'https://ui-avatars.com/api/?name=' + vainqueurs[0].vainqueur + '&background=FBBF24&color=000'" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-yellow-500 object-cover bg-slate-800 shadow-2xl relative z-10">
+            <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-yellow-950 text-sm font-black px-4 py-1 rounded-full border-2 border-slate-800 z-20">1er</div>
           </div>
-        }
-      </div>
-    </section>
-  </div>
+          <div class="bg-gradient-to-b from-yellow-900/40 to-slate-800 border border-yellow-600/50 rounded-t-2xl w-full p-6 text-center h-48 flex flex-col justify-center shadow-2xl relative">
+            <h4 class="font-black text-white text-lg line-clamp-2">{{ vainqueurs[0].vainqueur }}</h4>
+            <p class="text-xs text-yellow-400 mt-1">{{ vainqueurs[0].titre }}</p>
+            <div class="mt-3 text-yellow-950 font-bold text-sm bg-yellow-500 py-1 rounded-lg">Grand Gagnant</div>
+          </div>
+        </div>
+      }
+
+      <!-- 3ème Place -->
+      @if (vainqueurs.length > 2) {
+        <div class="flex flex-col items-center w-1/3 max-w-[200px]">
+          <div class="relative mb-4">
+            <img [src]="vainqueurs[2].imageVainqueur || 'https://ui-avatars.com/api/?name=' + vainqueurs[2].vainqueur + '&background=B45309&color=fff'" class="w-20 h-20 md:w-24 md:h-24 rounded-full border-4 border-orange-700 object-cover bg-slate-800 shadow-xl">
+            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-orange-700 text-white text-xs font-black px-3 py-1 rounded-full border-2 border-slate-800">3e</div>
+          </div>
+          <div class="bg-slate-800 border border-slate-700 rounded-t-2xl w-full p-4 text-center h-28 flex flex-col justify-center shadow-lg">
+            <h4 class="font-bold text-white text-sm line-clamp-2">{{ vainqueurs[2].vainqueur }}</h4>
+            <p class="text-xs text-slate-400 mt-1">{{ vainqueurs[2].titre }}</p>
+          </div>
+        </div>
+      }
+
+    </div>
+  </section>
+
+  <!-- SECTION PARTENAIRES -->
+  <section class="max-w-7xl mx-auto w-full px-4 mt-24 pt-12 border-t border-slate-800">
+    <p class="text-center text-slate-500 text-sm font-bold uppercase tracking-widest mb-8">Ils soutiennent l'écosystème</p>
+    <div class="flex flex-wrap justify-center items-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+      <div class="text-xl font-black text-white">Ministère de la Transition Digitale</div>
+      <div class="text-xl font-black text-white">BLCC</div>
+      <div class="text-xl font-black text-white">EPO</div>
+    </div>
+  </section>
+
 </div>

@@ -30,33 +30,48 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  // 1. Méthode de connexion
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => this.saveToken(response.token))
     );
   }
 
-  // 2. NOUVELLE MÉTHODE : Inscription
   register(userData: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData).pipe(
       tap(response => this.saveToken(response.token))
     );
   }
 
-  // Récupération du token
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // Déconnexion
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
   }
 
-  // Vérifier si l'utilisateur est connecté
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  // NOUVELLE MÉTHODE : Extraire les initiales de l'email contenu dans le Token JWT
+  getUserInitials(): string {
+    const token = this.getToken();
+    if (!token) return '?';
+    try {
+      // Décodage de la partie payload du JWT (standard Base64Url)
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(window.atob(base64));
+      
+      const email = payload.sub || ''; // 'sub' contient l'email
+      if (email) {
+        return email.substring(0, 2).toUpperCase(); // Retourne les 2 premières lettres
+      }
+      return '?';
+    } catch (e) {
+      return '?';
+    }
   }
 
   private saveToken(token: string): void {

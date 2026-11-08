@@ -1,42 +1,49 @@
-<nav class="bg-slate-950 border-b border-slate-800 sticky top-0 z-50">
+<nav class="bg-slate-950/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">
+    <div class="flex items-center justify-between h-20">
       
-      <!-- LOGO PERSONNALISÉ -->
+      <!-- LOGO -->
       <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
-        <!-- On utilise ton logo.png ici. h-10 permet de garder une taille correcte sans déformer -->
         <img src="images/logo.png" alt="Logo HackaBF" class="h-10 w-auto object-contain">
-        <span class="font-bold text-xl tracking-tight text-white hidden sm:block">Hacka<span class="text-indigo-500">BF</span></span>
+        <span class="font-black text-2xl tracking-tighter text-white hidden sm:block">Hacka<span class="text-indigo-500">BF</span></span>
       </div>
       
-      <div class="hidden md:block">
-        <div class="ml-10 flex items-baseline space-x-4">
-          <a routerLink="/" routerLinkActive="bg-slate-800 text-white" [routerLinkActiveOptions]="{exact: true}" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Accueil</a>
-          <a routerLink="/hackathons" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Hackathons</a>
-          
-          <a *ngIf="authService.isLoggedIn()" routerLink="/mon-espace" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Mon Espace</a>
-          <a *ngIf="authService.isLoggedIn()" routerLink="/admin" routerLinkActive="bg-red-900 text-white" class="text-red-400 hover:text-red-300 px-3 py-2 rounded-md text-sm font-bold transition-colors">Admin</a>
-          <a *ngIf="authService.isLoggedIn()" routerLink="/publier" routerLinkActive="text-indigo-400 bg-slate-800" class="text-indigo-400 font-bold hover:text-indigo-300 px-3 py-2 rounded-md text-sm flex items-center gap-1 transition-colors">
-            <span class="text-lg leading-none">+</span> Publier
-          </a>
-        </div>
+      <!-- LIENS -->
+      <div class="hidden md:flex items-center space-x-2">
+        <a routerLink="/" routerLinkActive="bg-slate-800 text-white" [routerLinkActiveOptions]="{exact: true}" class="text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Accueil</a>
+        <a routerLink="/hackathons" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Hackathons</a>
+        <a *ngIf="authService.isLoggedIn()" routerLink="/mon-espace" routerLinkActive="bg-slate-800 text-white" class="text-slate-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">Mon Espace</a>
+        <a *ngIf="authService.isLoggedIn()" routerLink="/admin" routerLinkActive="bg-red-900/50 text-red-400" class="text-red-500 hover:text-red-400 px-4 py-2 rounded-lg text-sm font-bold transition-colors">Admin</a>
       </div>
 
+      <!-- ACTIONS & PROFIL -->
       <div class="flex items-center gap-4">
+        
         <ng-container *ngIf="!authService.isLoggedIn()">
-          <a routerLink="/login" class="text-slate-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Connexion</a>
-          <a routerLink="/register" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium shadow-lg shadow-indigo-500/30 transition-all">
+          <a routerLink="/login" class="text-slate-300 hover:text-white text-sm font-medium">Connexion</a>
+          <a routerLink="/register" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-full text-sm font-bold shadow-lg shadow-indigo-500/30 transition-all">
             S'inscrire
           </a>
         </ng-container>
 
         <ng-container *ngIf="authService.isLoggedIn()">
-          <button (click)="logout()" class="bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/50 px-4 py-2 rounded-md text-sm font-medium transition-all">
-            Déconnexion
-          </button>
+          <!-- Bouton Publier -->
+          <a routerLink="/publier" class="hidden sm:flex bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-5 py-2 rounded-full text-sm font-bold transition-colors items-center gap-2">
+            <span class="text-indigo-400 text-lg leading-none">+</span> Publier
+          </a>
+          
+          <!-- Avatar & Déconnexion -->
+          <div class="flex items-center gap-3 border-l border-slate-800 pl-4 ml-2">
+            <button (click)="logout()" class="text-sm font-medium text-slate-400 hover:text-red-400 transition-colors">
+              Déconnexion
+            </button>
+            <div class="w-10 h-10 rounded-full bg-indigo-900 border border-indigo-700 flex items-center justify-center text-white font-bold">
+              {{ authService.getUserInitials() }}
+            </div>
+          </div>
         </ng-container>
+
       </div>
-      
     </div>
   </div>
 </nav>
