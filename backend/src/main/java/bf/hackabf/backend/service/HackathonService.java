@@ -28,12 +28,10 @@ public class HackathonService {
         this.utilisateurRepository = utilisateurRepository;
     }
 
-    // PUBLIC : Uniquement les événements validés
     public Page<HackathonResponse> getAllHackathons(int page, int size) {
         return hackathonRepository.findByEstValideTrueOrderByDateDebutDesc(PageRequest.of(page, size)).map(this::mapToResponse);
     }
 
-    // PUBLIC : Uniquement les vainqueurs validés
     public List<HackathonResponse> getVainqueurs() {
         return hackathonRepository.findByEstValideTrueAndVainqueurIsNotNullOrderByDateFinDesc().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
@@ -47,42 +45,46 @@ public class HackathonService {
     }
 
     public HackathonResponse createHackathon(HackathonRequest request, String userEmail) {
+        if (request.getImageUrl() == null || request.getImageUrl().isEmpty()) {
+            throw new RuntimeException("L'affiche du hackathon est obligatoire.");
+        }
         Utilisateur createur = utilisateurRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
-        Categorie categorie = categorieRepository.findById(request.getCategorieId()).orElseThrow(() -> new RuntimeException("Catégorie introuvable"));
+        
+        Categorie categorie = null;
+        if (request.getCategorieId() != null) {
+            categorie = categorieRepository.findById(request.getCategorieId()).orElse(null);
+        }
 
         Hackathon hackathon = new Hackathon();
-        hackathon.setTitre(request.getTitre());
+        hackathon.setTitre(request.getTitre() != null && !request.getTitre().isEmpty() ? request.getTitre() : "Hackathon sans titre");
         hackathon.setDescription(request.getDescription());
         hackathon.setDateDebut(request.getDateDebut());
         hackathon.setDateFin(request.getDateFin());
         hackathon.setLieu(request.getLieu());
-        hackathon.setFormat(request.getFormat());
+        hackathon.setFormat(request.getFormat() != null ? request.getFormat() : "PRESENTIEL");
         hackathon.setLienInscription(request.getLienInscription());
         hackathon.setImageUrl(request.getImageUrl());
-        hackathon.setTypeInscription(request.getTypeInscription());
+        hackathon.setTypeInscription(request.getTypeInscription() != null ? request.getTypeInscription() : "EXTERNE");
         hackathon.setFormulaireConfig(request.getFormulaireConfig());
         hackathon.setCodeSecretHex(request.getCodeSecretHex());
         hackathon.setCategorie(categorie);
         hackathon.setCreateur(createur);
         hackathon.setStatut("A_VENIR");
-        
-        // PAR DÉFAUT : L'événement n'est pas validé
-        hackathon.setEstValide(true); // Publication automatique 
+        hackathon.setEstValide(true);
 
         Hackathon saved = hackathonRepository.save(hackathon);
         return mapToResponse(saved);
     }
 
-    // ADMIN : Valider un événement
+    // MÉTHODES AJOUTÉES POUR L'ADMIN
+    public List<HackathonResponse> getHackathonsEnAttente() {
+        return hackathonRepository.findByEstValideFalse().stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
     public HackathonResponse validerHackathon(String id) {
         Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
         hackathon.setEstValide(true);
         return mapToResponse(hackathonRepository.save(hackathon));
-    }
-
-    // ADMIN : Récupérer les événements en attente
-    public List<HackathonResponse> getHackathonsEnAttente() {
-        return hackathonRepository.findByEstValideFalse().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
     public HackathonResponse designerVainqueur(String id, String vainqueur, String imageVainqueur, String email) {
@@ -124,7 +126,7 @@ public class HackathonService {
         response.setImageUrl(hackathon.getImageUrl());
         response.setTypeInscription(hackathon.getTypeInscription());
         response.setFormulaireConfig(hackathon.getFormulaireConfig());
-        response.setEstValide(hackathon.isEstValide()); // On ajoute au DTO
+        response.setEstValide(hackathon.isEstValide());
         if (hackathon.getCategorie() != null) response.setCategorieNom(hackathon.getCategorie().getNom());
         if (hackathon.getCreateur() != null) response.setCreateurNom(hackathon.getCreateur().getNomComplet());
         return response;

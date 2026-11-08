@@ -1,31 +1,18 @@
 <div class="flex h-screen bg-slate-900 text-slate-100 overflow-hidden">
   
-  <!-- SIDEBAR (Barre latérale) -->
+  <!-- SIDEBAR -->
   <aside class="w-64 bg-slate-950 border-r border-slate-800 flex flex-col shrink-0">
-    
-    <!-- Logo & Titre -->
     <div class="h-20 flex items-center px-6 border-b border-slate-800 gap-3">
       <img src="images/logo.png" alt="Logo" class="h-8 w-auto">
       <span class="font-black text-xl tracking-tighter text-white">Hacka<span class="text-yellow-400">BF</span></span>
     </div>
 
-    <!-- Navigation -->
     <nav class="flex-grow p-4 space-y-2">
       <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 px-2">Administration</p>
       
       <a routerLink="/admin" class="flex items-center gap-3 px-3 py-3 rounded-xl bg-indigo-600/10 text-indigo-400 font-bold transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
         Gestion des Utilisateurs
-      </a>
-
-      <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white font-medium transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-        Modération Hackathons
-      </a>
-
-      <a href="#" class="flex items-center gap-3 px-3 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white font-medium transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        Paramètres
       </a>
 
       <div class="pt-8">
@@ -36,59 +23,53 @@
         </a>
       </div>
     </nav>
-
-    <!-- Profil en bas de la sidebar -->
-    <div class="p-4 border-t border-slate-800">
-      <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-slate-800 transition-colors cursor-pointer">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 p-[2px]">
-          <div class="w-full h-full bg-slate-950 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-slate-950">
-            ID
-          </div>
-        </div>
-        <div>
-          <p class="text-sm font-bold text-white">Idrissa Yameogo</p>
-          <p class="text-xs text-indigo-400">Super Admin</p>
-        </div>
-      </div>
-    </div>
   </aside>
 
-  <!-- CONTENU PRINCIPAL (Droite) -->
+  <!-- CONTENU PRINCIPAL -->
   <main class="flex-1 flex flex-col h-full overflow-hidden">
     
-    <!-- Barre supérieure de la page (Topbar) -->
-    <header class="h-20 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 flex items-center justify-between px-8 shrink-0">
+    <header class="h-20 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 shrink-0">
       <div>
         <h1 class="text-2xl font-black text-white">Espace Administrateur</h1>
-        <p class="text-sm text-slate-400">Gérez les utilisateurs et les accès à la plateforme.</p>
+        <p class="text-sm text-slate-400">Gérez les rôles et les accès à la plateforme.</p>
       </div>
-      
-      <div class="flex items-center gap-4">
-        <button class="p-2 text-slate-400 hover:text-white bg-slate-800 rounded-full transition-colors relative">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-        </button>
-      </div>
+      <button (click)="chargerUtilisateurs()" class="p-2 text-slate-400 hover:text-white bg-slate-800 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Actualiser
+      </button>
     </header>
 
-    <!-- Zone des tableaux (Scrollable) -->
     <div class="flex-1 overflow-y-auto p-8">
       
-      <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl mb-8">
+      <!-- MESSAGE D'ERREUR -->
+      <div *ngIf="errorMessage" class="bg-red-900/50 border border-red-500 text-red-300 p-4 rounded-xl mb-6 flex items-center gap-3">
+        <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        {{ errorMessage }}
+      </div>
+
+      <div class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
         
         <div class="p-6 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
           <h2 class="text-lg font-bold text-white flex items-center gap-2">
             <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-            Liste des utilisateurs inscrits
+            Liste des utilisateurs ({{ utilisateurs.length }})
           </h2>
         </div>
 
-        <div *ngIf="isLoading" class="text-center py-20 text-slate-400">Chargement des utilisateurs...</div>
+        <!-- SKELETON LOADER (Pendant le chargement) -->
+        <div *ngIf="isLoading" class="p-6 space-y-4 animate-pulse">
+          <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
+          <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
+          <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
+          <div class="h-12 bg-slate-700/50 rounded-lg w-full"></div>
+        </div>
 
-        <table *ngIf="!isLoading" class="w-full text-left text-sm text-slate-300">
+        <!-- TABLEAU DES UTILISATEURS -->
+        <table *ngIf="!isLoading && utilisateurs.length > 0" class="w-full text-left text-sm text-slate-300">
           <thead class="text-xs uppercase bg-slate-900/50 text-slate-400 border-b border-slate-700">
             <tr>
               <th class="px-6 py-4">Utilisateur</th>
-              <th class="px-6 py-4">Rôle</th>
+              <th class="px-6 py-4">Rôle actuel</th>
               <th class="px-6 py-4">Statut</th>
               <th class="px-6 py-4 text-right">Action</th>
             </tr>
@@ -97,11 +78,18 @@
             @for (user of utilisateurs; track user.id) {
               <tr class="hover:bg-slate-800/30 transition-colors">
                 <td class="px-6 py-4">
-                  <div class="font-bold text-white">{{ user.nomComplet }}</div>
-                  <div class="text-xs text-slate-500">{{ user.email }}</div>
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white">
+                      {{ user.nomComplet.substring(0, 2).toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="font-bold text-white">{{ user.nomComplet }}</div>
+                      <div class="text-xs text-slate-500">{{ user.email }}</div>
+                    </div>
+                  </div>
                 </td>
                 <td class="px-6 py-4">
-                  <select (change)="changerRole(user.id, $event)" class="bg-slate-900 border border-slate-600 text-sm rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                  <select (change)="changerRole(user.id, $event)" class="bg-slate-900 border border-slate-600 text-sm rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer">
                     <option value="ROLE_ETUDIANT" [selected]="user.roles.includes('ROLE_ETUDIANT')">Étudiant</option>
                     <option value="ROLE_EDITEUR" [selected]="user.roles.includes('ROLE_EDITEUR')">Éditeur</option>
                     <option value="ROLE_ADMIN" [selected]="user.roles.includes('ROLE_ADMIN')">Admin</option>
@@ -119,7 +107,7 @@
                   }
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <button (click)="toggleStatus(user.id)" class="px-3 py-1.5 rounded-lg border border-slate-600 text-xs font-bold transition-colors"
+                  <button (click)="toggleStatus(user.id)" class="px-3 py-1.5 rounded-lg border text-xs font-bold transition-colors"
                     [ngClass]="user.estActif ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500 hover:text-white' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500 hover:text-white'">
                     {{ user.estActif ? 'Bannir' : 'Réactiver' }}
                   </button>
@@ -128,8 +116,13 @@
             }
           </tbody>
         </table>
-      </div>
 
+        <!-- ETAT VIDE -->
+        <div *ngIf="!isLoading && utilisateurs.length === 0" class="text-center py-20">
+          <p class="text-slate-400">Aucun utilisateur trouvé.</p>
+        </div>
+
+      </div>
     </div>
   </main>
 </div>

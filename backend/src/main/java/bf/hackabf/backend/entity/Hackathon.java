@@ -18,7 +18,7 @@ public class Hackathon {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(nullable = false)
+    @Column // On a retiré nullable = false
     private String titre;
 
     @Column(columnDefinition = "TEXT")
@@ -46,7 +46,6 @@ public class Hackathon {
     @Column(name = "type_inscription")
     private String typeInscription = "EXTERNE";
 
-    // LE CHAMP QUI MANQUAIT POUR LE FORMULAIRE DYNAMIQUE
     @Column(columnDefinition = "TEXT")
     private String formulaireConfig;
 
@@ -54,7 +53,7 @@ public class Hackathon {
     private String codeSecretHex;
 
     @Column(name = "est_valide")
-    private boolean estValide = false;
+    private boolean estValide = true;
 
     @ManyToOne
     @JoinColumn(name = "categorie_id")

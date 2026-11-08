@@ -1,49 +1,61 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AdminService, UtilisateurAdmin } from '../../../core/services/admin.service';
-import { HackathonService } from '../../../core/services/hackathon.service';
-import { Hackathon } from '../../../core/models/hackathon.model';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './admin-dashboard.component.html'
+  imports: [CommonModule, RouterLink],
+  templateUrl: './admin-dashboard.component.html',
+  styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
   utilisateurs: UtilisateurAdmin[] = [];
-  hackathonsEnAttente: Hackathon[] = [];
   isLoading = true;
+  errorMessage = '';
 
-  constructor(private adminService: AdminService, private hackathonService: HackathonService) {}
+  constructor(private adminService: AdminService) {}
 
   ngOnInit() {
-    this.chargerDonnees();
+    this.chargerUtilisateurs();
   }
 
-  chargerDonnees() {
+  chargerUtilisateurs() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
     this.adminService.getAllUtilisateurs().subscribe({
-      next: (data) => { this.utilisateurs = data; this.isLoading = false; }
+      next: (data) => { 
+        this.utilisateurs = data; 
+        this.isLoading = false; 
+      },
+      error: (err) => { 
+        console.error('Erreur API:', err);
+        this.isLoading = false; 
+        this.errorMessage = "Impossible de charger les utilisateurs. Vérifiez vos droits d'accès.";
+      }
     });
-    this.hackathonService.getHackathonsEnAttente().subscribe({
-      next: (data) => { this.hackathonsEnAttente = data; }
-    });
-  }
-
-  validerHackathon(id: string) {
-    if(confirm('Valider cet événement ? Il sera visible sur le site public.')) {
-      this.hackathonService.validerHackathon(id).subscribe({
-        next: () => { this.chargerDonnees(); }
-      });
-    }
   }
 
   changerRole(id: string, event: any) {
-    const role = event.target.value;
-    this.adminService.changerRole(id, role).subscribe({ next: () => this.chargerDonnees() });
+    const nouveauRole = event.target.value;
+    this.adminService.changerRole(id, nouveauRole).subscribe({
+      next: () => {
+        this.chargerUtilisateurs(); // Recharger pour confirmer
+      },
+      error: (err) => alert("Erreur lors du changement de rôle : " + (err.error?.erreur || err.message))
+    });
   }
 
   toggleStatus(id: string) {
-    this.adminService.toggleStatus(id).subscribe({ next: () => this.chargerDonnees() });
+    if (confirm("Voulez-vous vraiment changer le statut de cet utilisateur ?")) {
+      this.adminService.toggleStatus(id).subscribe({
+        next: () => {
+          this.chargerUtilisateurs(); // Recharger pour confirmer
+        },
+        error: (err) => alert("Erreur : " + (err.error?.erreur || err.message))
+      });
+    }
   }
 }

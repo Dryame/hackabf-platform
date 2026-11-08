@@ -12,46 +12,75 @@ import { Hackathon } from '../../../core/models/hackathon.model';
   templateUrl: './hackathon-list.component.html'
 })
 export class HackathonListComponent implements OnInit {
-  hackathons: Hackathon[] = [];
-  filteredHackathons: Hackathon[] = [];
-  isLoading: boolean = true;
-  
+  allHackathons: Hackathon[] = [];
+  featuredHackathon: Hackathon | null = null;
+  otherHackathons: Hackathon[] = [];
+  isLoading = true;
+
   // Filtres
   searchTerm: string = '';
-  selectedStatut: string = 'TOUS'; // TOUS, A_VENIR, EN_COURS, TERMINE
   selectedCategorie: string = 'Toutes';
-  selectedVille: string = 'Toutes';
-
   categories: string[] = ['Toutes', 'Data & IA', 'Cybersécurité', 'Dev & Ingénierie', 'Cloud & DevOps', 'UX/UI', 'Tech Émergente', 'Tech Business'];
-  villes: string[] = ['Toutes', 'Ouagadougou', 'Bobo-Dioulasso', 'Koudougou', 'En ligne'];
+
+  // Pagination
+  currentPage = 0;
+  pageSize = 10;
+  totalPages = 0;
 
   constructor(private hackathonService: HackathonService) {}
 
   ngOnInit(): void {
-    this.hackathonService.getHackathons(0, 50).subscribe({
+    this.chargerHackathons();
+  }
+
+  chargerHackathons(): void {
+    this.isLoading = true;
+    this.hackathonService.getHackathons(this.currentPage, this.pageSize).subscribe({
       next: (response) => {
-        this.hackathons = response.content;
-        this.filterData();
+        this.allHackathons = response.content;
+        this.totalPages = response.totalPages;
+        
+        // Séparation intelligente : le premier est mis en vedette, les autres dans la grille
+        if (this.allHackathons.length > 0) {
+          this.featuredHackathon = this.allHackathons[0];
+          this.otherHackathons = this.allHackathons.slice(1);
+        } else {
+          this.featuredHackathon = null;
+          this.otherHackathons = [];
+        }
+        
         this.isLoading = false;
       },
       error: () => this.isLoading = false
     });
   }
 
-  filterData() {
-    this.filteredHackathons = this.hackathons.filter(h => {
+  get filteredOtherHackathons() {
+    return this.otherHackathons.filter(h => {
       const matchSearch = h.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
-                          h.createurNom.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchStatut = this.selectedStatut === 'TOUS' || h.statut === this.selectedStatut;
+                          (h.createurNom && h.createurNom.toLowerCase().includes(this.searchTerm.toLowerCase()));
       const matchCat = this.selectedCategorie === 'Toutes' || h.categorieNom === this.selectedCategorie;
-      const matchVille = this.selectedVille === 'Toutes' || h.lieu.includes(this.selectedVille);
-      
-      return matchSearch && matchStatut && matchCat && matchVille;
+      return matchSearch && matchCat;
     });
   }
 
-  setStatut(statut: string) {
-    this.selectedStatut = statut;
-    this.filterData();
+  setCategorie(cat: string) {
+    this.selectedCategorie = cat;
+  }
+
+  pageSuivante(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      this.chargerHackathons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  pagePrecedente(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      this.chargerHackathons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }
