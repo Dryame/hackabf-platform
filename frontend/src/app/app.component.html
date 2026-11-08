@@ -1,8 +1,14 @@
 <div class="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans">
-  <app-navbar></app-navbar>
-  <!-- On retire le container pour que l'image prenne 100% de la largeur -->
+  
+  <!-- La Navbar globale ne s'affiche QUE si on n'est pas dans un Dashboard -->
+  <app-navbar *ngIf="!isDashboardRoute"></app-navbar>
+  
+  <!-- Le contenu de la page -->
   <main class="flex-grow">
     <router-outlet></router-outlet>
   </main>
-  <app-footer></app-footer>
+  
+  <!-- Le Footer global ne s'affiche QUE si on n'est pas dans un Dashboard -->
+  <app-footer *ngIf="!isDashboardRoute"></app-footer>
+  
 </div>

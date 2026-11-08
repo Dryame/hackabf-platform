@@ -19,7 +19,6 @@ public class InscriptionHackathon {
 
     private LocalDateTime dateInscription = LocalDateTime.now();
 
-    // Stocke les réponses du formulaire dynamique en JSON
     @Column(columnDefinition = "TEXT")
     private String reponses;
 
@@ -30,4 +29,9 @@ public class InscriptionHackathon {
     @ManyToOne
     @JoinColumn(name = "hackathon_id")
     private Hackathon hackathon;
+
+    // Lien avec l'équipe (Optionnel, car on peut s'inscrire en solo)
+    @ManyToOne
+    @JoinColumn(name = "equipe_id")
+    private Equipe equipe;
 }

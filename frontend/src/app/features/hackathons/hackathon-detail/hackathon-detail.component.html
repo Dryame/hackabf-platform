@@ -3,33 +3,6 @@
   <a routerLink="/hackathons" class="text-indigo-400 hover:text-indigo-300 mb-6 inline-block">&larr; Retour au catalogue</a>
 
   <div *ngIf="isLoading" class="text-center py-20 text-slate-400">
-  <!-- MODALE DU FORMULAIRE DYNAMIQUE -->
-  <div *ngIf="showFormModal && hackathon" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
-    <div class="bg-slate-800 rounded-2xl p-8 max-w-lg w-full border border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-white">Inscription</h2>
-        <p class="text-slate-400 text-sm mt-1">{{ hackathon.titre }}</p>
-      </div>
-      
-      <form [formGroup]="dynamicForm" (ngSubmit)="participer()" class="space-y-4">
-        @for (field of customFields; track field.label) {
-          <div>
-            <label class="block text-sm font-medium text-slate-300 mb-1">{{ field.label }}</label>
-            <input [type]="field.type" [formControlName]="field.label" 
-                   class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" 
-                   [placeholder]="'Entrez ' + field.label">
-          </div>
-        }
-        
-        <div class="flex justify-end gap-3 mt-8">
-          <button type="button" (click)="showFormModal = false" class="px-5 py-2.5 text-slate-300 hover:text-white bg-slate-700 rounded-xl">Annuler</button>
-          <button type="submit" [disabled]="dynamicForm.invalid || isLoadingInscription" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl disabled:opacity-50">
-            Confirmer
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
     <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-4"></div>
     <p>Chargement des détails...</p>
   </div>
@@ -40,6 +13,7 @@
 
   <div *ngIf="!isLoading && hackathon" class="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden shadow-2xl">
     
+    <!-- En-tête -->
     <div class="bg-slate-900 p-8 border-b border-slate-700">
       <div class="flex justify-between items-start">
         <div>
@@ -55,6 +29,7 @@
       </div>
     </div>
 
+    <!-- Corps -->
     <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
       
       <div class="md:col-span-2 space-y-6">
@@ -64,6 +39,7 @@
         </div>
       </div>
 
+      <!-- Informations & Actions -->
       <div class="bg-slate-900/50 p-6 rounded-xl border border-slate-700 space-y-4 h-fit">
         <div>
           <span class="text-slate-500 text-sm block">📅 Date de début</span>
@@ -84,19 +60,43 @@
 
         <hr class="border-slate-700 my-4">
 
-        <!-- Message de retour après inscription -->
+        <!-- Message d'inscription -->
         <div *ngIf="messageInscription" class="bg-emerald-900/50 border border-emerald-500 text-emerald-300 p-3 rounded-lg text-sm text-center mb-4">
           {{ messageInscription }}
         </div>
 
-        <!-- BOUTON D'INSCRIPTION CONDITIONNEL -->
+        <!-- GESTION DE L'INSCRIPTION ET DES ÉQUIPES -->
         <div *ngIf="hackathon.typeInscription === 'INTERNE'">
+          
+          <!-- Bouton si pas inscrit -->
           <button *ngIf="!isInscrit" (click)="ouvrirInscription()" [disabled]="isLoadingInscription" class="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg shadow-emerald-500/30 disabled:opacity-50">
             {{ isLoadingInscription ? 'Inscription...' : 'Je participe' }}
           </button>
-          <button *ngIf="isInscrit" disabled class="block w-full text-center bg-emerald-600/50 text-emerald-300 font-bold py-3 rounded-lg cursor-not-allowed">
-            ✅ Vous êtes inscrit
-          </button>
+
+          <!-- Si inscrit : Afficher l'état de l'équipe -->
+          <div *ngIf="isInscrit" class="space-y-4">
+            <div class="bg-emerald-900/30 border border-emerald-700/50 text-emerald-400 font-bold py-3 rounded-lg text-center flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              Vous êtes inscrit
+            </div>
+
+            <!-- Si l'utilisateur a déjà une équipe -->
+            @if (monEquipe) {
+              <div class="bg-slate-800 border border-indigo-500/50 p-4 rounded-xl">
+                <p class="text-xs text-slate-400 uppercase tracking-wider font-bold mb-1">Mon Équipe</p>
+                <p class="text-lg font-black text-white">{{ monEquipe.nom }}</p>
+                <div class="mt-3 bg-slate-900 p-2 rounded text-center border border-slate-700">
+                  <p class="text-xs text-slate-500 mb-1">Code d'invitation à partager :</p>
+                  <p class="font-mono text-indigo-400 font-bold text-lg">{{ monEquipe.codeInvitation }}</p>
+                </div>
+              </div>
+            } @else {
+              <!-- Si l'utilisateur n'a pas d'équipe -->
+              <button (click)="showEquipeModal = true" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-lg transition-colors shadow-lg">
+                Gérer mon équipe
+              </button>
+            }
+          </div>
         </div>
 
         <div *ngIf="hackathon.typeInscription !== 'INTERNE'">
@@ -112,4 +112,83 @@
       </div>
     </div>
   </div>
+
+  <!-- ========================================== -->
+  <!-- MODALE : FORMULAIRE DYNAMIQUE D'INSCRIPTION -->
+  <!-- ========================================== -->
+  <div *ngIf="showFormModal && hackathon" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-8 max-w-lg w-full border border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-white">Inscription</h2>
+        <p class="text-slate-400 text-sm mt-1">{{ hackathon.titre }}</p>
+      </div>
+      
+      <form [formGroup]="dynamicForm" (ngSubmit)="participer()" class="space-y-4">
+        @for (field of customFields; track field.label) {
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-1">{{ field.label }}</label>
+            <input [type]="field.type" [formControlName]="field.label" 
+                   class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-lg focus:ring-2 focus:ring-indigo-500" 
+                   [placeholder]="'Entrez ' + field.label">
+          </div>
+        }
+        
+        <div class="flex justify-end gap-3 mt-8">
+          <button type="button" (click)="showFormModal = false" class="px-5 py-2.5 text-slate-300 hover:text-white bg-slate-700 rounded-xl">Annuler</button>
+          <button type="submit" [disabled]="dynamicForm.invalid || isLoadingInscription" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl disabled:opacity-50">
+            Confirmer l'inscription
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODALE : GESTION D'ÉQUIPE -->
+  <!-- ========================================== -->
+  <div *ngIf="showEquipeModal" class="fixed inset-0 bg-slate-950/80 flex items-center justify-center z-50 px-4 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-3xl p-8 max-w-md w-full border border-slate-700 shadow-2xl relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
+      
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 bg-indigo-900/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-indigo-700/50">
+          <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-white">Gestion d'équipe</h2>
+        <p class="text-slate-400 text-sm mt-1">Créez votre équipe ou rejoignez-en une.</p>
+      </div>
+
+      <div *ngIf="equipeMessage" class="bg-red-900/50 border border-red-500 text-red-300 p-2 rounded-lg text-sm text-center mb-4">
+        {{ equipeMessage }}
+      </div>
+
+      <div class="flex gap-2 p-1.5 bg-slate-900/80 rounded-xl mb-6 border border-slate-800">
+        <button (click)="equipeAction = 'CREER'" [ngClass]="equipeAction === 'CREER' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white'" class="flex-1 py-2 rounded-lg font-medium text-sm transition-all">Créer</button>
+        <button (click)="equipeAction = 'REJOINDRE'" [ngClass]="equipeAction === 'REJOINDRE' ? 'bg-slate-700 text-white shadow' : 'text-slate-400 hover:text-white'" class="flex-1 py-2 rounded-lg font-medium text-sm transition-all">Rejoindre</button>
+      </div>
+
+      <!-- Formulaire Créer -->
+      <div *ngIf="equipeAction === 'CREER'" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Nom de votre équipe</label>
+          <input type="text" [(ngModel)]="nomEquipe" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-indigo-500" placeholder="Ex: Les Innovateurs">
+        </div>
+        <button (click)="creerEquipe()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg">Créer l'équipe</button>
+      </div>
+
+      <!-- Formulaire Rejoindre -->
+      <div *ngIf="equipeAction === 'REJOINDRE'" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1">Code d'invitation</label>
+          <input type="text" [(ngModel)]="codeInvitation" class="w-full px-4 py-3 bg-slate-900 border border-slate-600 text-white rounded-xl focus:ring-2 focus:ring-indigo-500 uppercase font-mono text-center tracking-widest" placeholder="Ex: ALPHA-X7F">
+        </div>
+        <button (click)="rejoindreEquipe()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg">Rejoindre l'équipe</button>
+      </div>
+
+      <div class="text-center mt-6">
+        <button (click)="showEquipeModal = false" class="text-slate-400 hover:text-white text-sm font-medium transition-colors">Plus tard</button>
+      </div>
+    </div>
+  </div>
+
 </div>
