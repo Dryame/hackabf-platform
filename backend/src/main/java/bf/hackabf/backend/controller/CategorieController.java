@@ -1,7 +1,7 @@
 package bf.hackabf.backend.controller;
 
 import bf.hackabf.backend.entity.Categorie;
-import bf.hackabf.backend.repository.CategorieRepository;
+import bf.hackabf.backend.service.CategorieService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,14 +11,14 @@ import java.util.List;
 @RequestMapping("/api/public/categories")
 public class CategorieController {
 
-    private final CategorieRepository categorieRepository;
+    private final CategorieService categorieService;
 
-    public CategorieController(CategorieRepository categorieRepository) {
-        this.categorieRepository = categorieRepository;
+    public CategorieController(CategorieService categorieService) {
+        this.categorieService = categorieService;
     }
 
     @GetMapping
     public ResponseEntity<List<Categorie>> getAllCategories() {
-        return ResponseEntity.ok(categorieRepository.findAll());
+        return ResponseEntity.ok(categorieService.getAllCategories());
     }
 }

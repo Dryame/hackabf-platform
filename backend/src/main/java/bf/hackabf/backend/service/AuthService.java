@@ -9,12 +9,15 @@ import bf.hackabf.backend.entity.Utilisateur;
 import bf.hackabf.backend.repository.RoleRepository;
 import bf.hackabf.backend.repository.UtilisateurRepository;
 import bf.hackabf.backend.security.JwtService;
+import bf.hackabf.backend.exception.ConflictException;
+import bf.hackabf.backend.exception.ResourceNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -40,10 +43,11 @@ public class AuthService {
         this.userDetailsService = userDetailsService;
     }
 
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
         // Vérification si l'email existe déjà
         if (utilisateurRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Erreur : Cet email est déjà utilisé.");
+            throw new ConflictException("Cet email est déjà utilisé.");
         }
 
         // Création du nouvel utilisateur
@@ -57,7 +61,7 @@ public class AuthService {
 
         // Attribution du rôle par défaut (ETUDIANT)
         Role roleEtudiant = roleRepository.findByNom(ERole.ROLE_ETUDIANT)
-                .orElseThrow(() -> new RuntimeException("Erreur : Le rôle par défaut n'existe pas."));
+                .orElseThrow(() -> new ResourceNotFoundException("Le rôle par défaut n'existe pas."));
         Set<Role> roles = new HashSet<>();
         roles.add(roleEtudiant);
         user.setRoles(roles);
@@ -71,6 +75,7 @@ public class AuthService {
         return new AuthResponse(jwtToken);
     }
 
+    @Transactional(readOnly = true)
     public AuthResponse login(LoginRequest request) {
         // Authentification via Spring Security
         authenticationManager.authenticate(

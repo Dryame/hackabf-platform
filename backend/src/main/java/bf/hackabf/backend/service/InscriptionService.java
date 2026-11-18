@@ -8,6 +8,10 @@ import bf.hackabf.backend.repository.InscriptionHackathonRepository;
 import bf.hackabf.backend.repository.UtilisateurRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import bf.hackabf.backend.exception.ConflictException;
+import bf.hackabf.backend.exception.ForbiddenException;
+import bf.hackabf.backend.exception.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.Map;
@@ -26,14 +30,15 @@ public class InscriptionService {
         this.utilisateurRepository = utilisateurRepository;
     }
 
+    @Transactional
     public void inscrire(String hackathonId, String email, Map<String, String> reponses) {
         Utilisateur user = utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
         Hackathon hackathon = hackathonRepository.findById(hackathonId)
-                .orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Hackathon introuvable"));
 
         if (inscriptionRepository.findByEtudiantIdAndHackathonId(user.getId(), hackathonId).isPresent()) {
-            throw new RuntimeException("Vous êtes déjà inscrit à ce hackathon.");
+            throw new ConflictException("Vous êtes déjà inscrit à ce hackathon.");
         }
 
         InscriptionHackathon inscription = new InscriptionHackathon();
@@ -46,7 +51,7 @@ public class InscriptionService {
                 inscription.setReponses(objectMapper.writeValueAsString(reponses));
             }
         } catch (Exception e) {
-            throw new RuntimeException("Erreur de format des réponses");
+            throw new IllegalArgumentException("Erreur de format des réponses");
         }
 
         inscriptionRepository.save(inscription);
@@ -54,14 +59,14 @@ public class InscriptionService {
 
     public List<InscriptionHackathon> getInscriptionsByHackathon(String hackathonId, String email) {
         Hackathon hackathon = hackathonRepository.findById(hackathonId)
-                .orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
-        if (!hackathon.getCreateur().getEmail().equals(email)) throw new RuntimeException("Non autorisé.");
+                .orElseThrow(() -> new ResourceNotFoundException("Hackathon introuvable"));
+        if (!hackathon.getCreateur().getEmail().equals(email)) throw new ForbiddenException("Non autorisé.");
         return inscriptionRepository.findByHackathonId(hackathonId);
     }
 
     public List<InscriptionHackathon> getMesInscriptions(String email) {
         Utilisateur user = utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
+                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
         return inscriptionRepository.findByEtudiantId(user.getId());
     }
 }

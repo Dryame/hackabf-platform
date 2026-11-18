@@ -8,9 +8,15 @@ import bf.hackabf.backend.entity.Utilisateur;
 import bf.hackabf.backend.repository.CategorieRepository;
 import bf.hackabf.backend.repository.HackathonRepository;
 import bf.hackabf.backend.repository.UtilisateurRepository;
+import bf.hackabf.backend.exception.ForbiddenException;
+import bf.hackabf.backend.exception.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,11 +27,14 @@ public class HackathonService {
     private final HackathonRepository hackathonRepository;
     private final CategorieRepository categorieRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public HackathonService(HackathonRepository hackathonRepository, CategorieRepository categorieRepository, UtilisateurRepository utilisateurRepository) {
+    public HackathonService(HackathonRepository hackathonRepository, CategorieRepository categorieRepository,
+                            UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder) {
         this.hackathonRepository = hackathonRepository;
         this.categorieRepository = categorieRepository;
         this.utilisateurRepository = utilisateurRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Page<HackathonResponse> getAllHackathons(int page, int size) {
@@ -37,20 +46,29 @@ public class HackathonService {
     }
 
     public HackathonResponse getHackathonById(String id) {
-        return mapToResponse(hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable")));
+        return mapToResponse(hackathonRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Hackathon introuvable")));
     }
 
     public List<HackathonResponse> getHackathonsByUser(String email) {
         return hackathonRepository.findByCreateurEmailOrderByDateDebutDesc(email).stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
+    @Transactional
     public HackathonResponse createHackathon(HackathonRequest request, String userEmail) {
+<<<<<<< HEAD
         Utilisateur createur = utilisateurRepository.findByEmail(userEmail).orElseThrow(() -> new RuntimeException("Utilisateur introuvable"));
         
         Categorie categorie = null;
         if (request.getCategorieId() != null) {
             categorie = categorieRepository.findById(request.getCategorieId()).orElse(null);
         }
+=======
+        Utilisateur createur = utilisateurRepository.findByEmail(userEmail).orElseThrow(() ->
+                new ResourceNotFoundException("Utilisateur introuvable"));
+        Categorie categorie = categorieRepository.findById(request.getCategorieId()).orElseThrow(() ->
+                new ResourceNotFoundException("Catégorie introuvable"));
+>>>>>>> 6c1cd83 (refactor(backend): complete phase 2 hardening)
 
         Hackathon hackathon = new Hackathon();
         hackathon.setTitre(request.getTitre() != null && !request.getTitre().isEmpty() ? request.getTitre() : "Hackathon sans titre");
@@ -63,7 +81,10 @@ public class HackathonService {
         hackathon.setImageUrl(request.getImageUrl());
         hackathon.setTypeInscription(request.getTypeInscription() != null ? request.getTypeInscription() : "EXTERNE");
         hackathon.setFormulaireConfig(request.getFormulaireConfig());
-        hackathon.setCodeSecretHex(request.getCodeSecretHex());
+        if (request.getCodeSecretHex() == null || request.getCodeSecretHex().isBlank()) {
+            throw new IllegalArgumentException("Le code secret est obligatoire.");
+        }
+        hackathon.setCodeSecretHex(passwordEncoder.encode(request.getCodeSecretHex()));
         hackathon.setCategorie(categorie);
         hackathon.setCreateur(createur);
         hackathon.setStatut("A_VENIR");
@@ -73,39 +94,65 @@ public class HackathonService {
         return mapToResponse(saved);
     }
 
+<<<<<<< HEAD
     public List<HackathonResponse> getHackathonsEnAttente() {
         return hackathonRepository.findByEstValideFalse().stream().map(this::mapToResponse).collect(Collectors.toList());
     }
 
+=======
+    // ADMIN : Valider un événement
+    @Transactional
+>>>>>>> 6c1cd83 (refactor(backend): complete phase 2 hardening)
     public HackathonResponse validerHackathon(String id) {
-        Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
+        Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Hackathon introuvable"));
         hackathon.setEstValide(true);
         return mapToResponse(hackathonRepository.save(hackathon));
     }
 
+<<<<<<< HEAD
+=======
+    // ADMIN : Récupérer les événements en attente
+    public List<HackathonResponse> getHackathonsEnAttente() {
+        return hackathonRepository.findByEstValideFalse().stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+>>>>>>> 6c1cd83 (refactor(backend): complete phase 2 hardening)
     public HackathonResponse designerVainqueur(String id, String vainqueur, String imageVainqueur, String email) {
         Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
-        if (!hackathon.getCreateur().getEmail().equals(email)) throw new RuntimeException("Non autorisé.");
+        verifyCreatorOrAdmin(hackathon, email);
         hackathon.setVainqueur(vainqueur);
         hackathon.setImageVainqueur(imageVainqueur);
         return mapToResponse(hackathonRepository.save(hackathon));
     }
 
+    @Transactional
     public HackathonResponse changerStatut(String id, String nouveauStatut, String codeSecret, String email) {
         Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
-        if (!hackathon.getCreateur().getEmail().equals(email)) throw new RuntimeException("Non autorisé.");
-        if (!hackathon.getCodeSecretHex().equals(codeSecret)) throw new RuntimeException("Code secret invalide.");
+        verifyCreatorOrAdmin(hackathon, email);
+        if (hackathon.getCodeSecretHex() == null
+                || codeSecret == null
+                || !passwordEncoder.matches(codeSecret, hackathon.getCodeSecretHex())) {
+            throw new RuntimeException("Code secret invalide.");
+        }
         hackathon.setStatut(nouveauStatut);
         return mapToResponse(hackathonRepository.save(hackathon));
     }
 
+    @Transactional
     public void supprimerHackathon(String id, String codeSecret, String email) {
         Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
-        if (!hackathon.getCreateur().getEmail().equals(email)) throw new RuntimeException("Non autorisé.");
-        if (!hackathon.getCodeSecretHex().equals(codeSecret)) throw new RuntimeException("Code secret invalide.");
+        verifyCreatorOrAdmin(hackathon, email);
+        if (hackathon.getCodeSecretHex() == null
+                || codeSecret == null
+                || !passwordEncoder.matches(codeSecret, hackathon.getCodeSecretHex())) {
+            throw new RuntimeException("Code secret invalide.");
+        }
         hackathonRepository.delete(hackathon);
     }
 
+<<<<<<< HEAD
     // ==========================================
     // NOUVELLES MÉTHODES ADMIN
     // ==========================================
@@ -122,6 +169,17 @@ public class HackathonService {
         Hackathon hackathon = hackathonRepository.findById(id).orElseThrow(() -> new RuntimeException("Hackathon introuvable"));
         hackathon.setStatut(nouveauStatut);
         return mapToResponse(hackathonRepository.save(hackathon));
+=======
+    private void verifyCreatorOrAdmin(Hackathon hackathon, String email) {
+        boolean creator = hackathon.getCreateur() != null
+                && hackathon.getCreateur().getEmail().equals(email);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean admin = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+        if (!creator && !admin) {
+            throw new ForbiddenException("Non autorisé.");
+        }
+>>>>>>> 6c1cd83 (refactor(backend): complete phase 2 hardening)
     }
 
     private HackathonResponse mapToResponse(Hackathon hackathon) {

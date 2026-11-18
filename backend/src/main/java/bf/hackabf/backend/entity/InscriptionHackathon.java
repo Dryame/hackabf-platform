@@ -2,13 +2,17 @@ package bf.hackabf.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "inscriptions_hackathons")
-@Data
+@Table(name = "inscriptions_hackathons", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_inscription_etudiant_hackathon", columnNames = {"etudiant_id", "hackathon_id"})
+})
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class InscriptionHackathon {

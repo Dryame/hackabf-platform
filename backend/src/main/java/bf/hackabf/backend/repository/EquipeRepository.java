@@ -14,8 +14,10 @@ public interface EquipeRepository extends JpaRepository<Equipe, String> {
 =======
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EquipeRepository extends JpaRepository<Equipe, String> {
 >>>>>>> 25db076 (fix(security): complete phase 1 critical hardening)
     List<Equipe> findByHackathonId(String hackathonId);
+    Optional<Equipe> findByCodeInvitation(String codeInvitation);
 }
