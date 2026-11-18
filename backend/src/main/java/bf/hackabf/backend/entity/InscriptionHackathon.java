@@ -30,8 +30,12 @@ public class InscriptionHackathon {
     @JoinColumn(name = "hackathon_id")
     private Hackathon hackathon;
 
+<<<<<<< HEAD
     // Lien avec l'équipe (Optionnel, car on peut s'inscrire en solo)
     @ManyToOne
+=======
+    @ManyToOne(fetch = FetchType.LAZY)
+>>>>>>> 25db076 (fix(security): complete phase 1 critical hardening)
     @JoinColumn(name = "equipe_id")
     private Equipe equipe;
 }

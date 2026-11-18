@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,6 +24,7 @@ public class Utilisateur {
     private String email;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String motDePasse; 
 
     private String nomComplet;
@@ -30,6 +32,9 @@ public class Utilisateur {
     private String niveauEtude;
     private String ville;
     private String lienGithub;
+    private String telephone;
+    private String bio;
+    private String matricule;
 
     @Column(name = "statut_accreditation")
     private String statutAccreditation = "NON_DEMANDE";
