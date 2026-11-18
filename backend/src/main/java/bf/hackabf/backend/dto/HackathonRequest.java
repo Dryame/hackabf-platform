@@ -1,11 +1,6 @@
 package bf.hackabf.backend.dto;
 
-<<<<<<< HEAD
-=======
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
->>>>>>> 6c1cd83 (refactor(backend): complete phase 2 hardening)
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -16,10 +11,7 @@ public class HackathonRequest {
     private String description;
     private LocalDateTime dateDebut;
     private LocalDateTime dateFin;
-<<<<<<< HEAD
-=======
     @Size(max = 255, message = "Le lieu ne doit pas dépasser 255 caractères")
->>>>>>> 6c1cd83 (refactor(backend): complete phase 2 hardening)
     private String lieu;
     private String format;
     private String lienInscription;

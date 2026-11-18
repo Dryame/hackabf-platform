@@ -10,9 +10,10 @@ import { AuthService } from '../services/auth.service';
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
-
+  const isInternalApi = req.url.startsWith('/api') ||
+    req.url.startsWith(`${window.location.origin}/api`);
   // Si un token existe, on clone la requête et on ajoute l'en-tête Authorization
-  if (token) {
+  if (token && isInternalApi) {
     const clonedRequest = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`

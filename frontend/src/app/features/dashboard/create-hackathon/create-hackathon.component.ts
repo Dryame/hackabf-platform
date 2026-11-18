@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormArray, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormArray, FormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HackathonService } from '../../../core/services/hackathon.service';
 import { CategorieService } from '../../../core/services/categorie.service';
@@ -33,14 +33,31 @@ export class CreateHackathonComponent implements OnInit {
     private router: Router
   ) {
     this.hackathonForm = this.fb.group({
-      titre: [''], description: [''], dateDebut: [''], dateFin: [''], lieu: [''],
-      format: ['PRESENTIEL'], categorieId: [''], typeInscription: ['EXTERNE'],
-      lienInscription: [''], champsPersonnalises: this.fb.array([])
+      titre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(150)]],
+      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]],
+      dateDebut: ['', Validators.required],
+      dateFin: ['', Validators.required],
+      lieu: ['', Validators.required],
+      format: ['PRESENTIEL', Validators.required],
+      categorieId: ['', Validators.required],
+      typeInscription: ['EXTERNE', Validators.required],
+      lienInscription: ['', Validators.required],
+      champsPersonnalises: this.fb.array([])
     });
   }
 
   ngOnInit() {
     this.categorieService.getAllCategories().subscribe(data => this.categories = data);
+    this.hackathonForm.get('typeInscription')?.valueChanges.subscribe(value => {
+      const lienControl = this.hackathonForm.get('lienInscription');
+      if (value === 'INTERNE') {
+        lienControl?.clearValidators();
+        lienControl?.setValue('');
+      } else {
+        lienControl?.setValidators([Validators.required]);
+      }
+      lienControl?.updateValueAndValidity();
+    });
   }
 
   get champsPersonnalises() {
@@ -66,10 +83,12 @@ export class CreateHackathonComponent implements OnInit {
   }
 
   onSubmit() {
+    if (this.hackathonForm.invalid) return;
     if (!this.selectedFile) {
       this.message = "L'affiche du hackathon est obligatoire. Veuillez sélectionner une image.";
       return;
     }
+    this.message = '';
     this.showConfirmModal = true;
   }
 
@@ -87,7 +106,7 @@ export class CreateHackathonComponent implements OnInit {
     this.message = '';
 
     this.hackathonService.uploadFile(this.selectedFile).subscribe({
-      next: (response) => this.creerHackathon(`http://localhost:8080${response.url}`),
+      next: (response) => this.creerHackathon(response.url),
       error: () => {
         this.message = "Erreur lors de l'upload de l'image.";
         this.isSubmitting = false;
@@ -104,10 +123,6 @@ export class CreateHackathonComponent implements OnInit {
       data.formulaireConfig = JSON.stringify(data.champsPersonnalises);
     }
     delete data.champsPersonnalises;
-
-    if (!data.dateDebut) data.dateDebut = null;
-    if (!data.dateFin) data.dateFin = null;
-    if (!data.categorieId) data.categorieId = null;
 
     this.hackathonService.createHackathon(data).subscribe({
       next: () => {

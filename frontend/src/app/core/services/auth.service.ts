@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 
 export interface LoginRequest {
   email: string;
@@ -12,69 +12,93 @@ export interface RegisterRequest {
   nomComplet: string;
   email: string;
   motDePasse: string;
-  etablissement: string;
-  niveauEtude: string;
-  ville: string;
+  telephone?: string;
 }
 
-export interface AuthResponse {
-  token: string;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
-  private readonly TOKEN_KEY = 'hackabf_token';
+  private apiUrl = '/api/auth';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private router: Router) {}
 
-  login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => this.saveToken(response.token))
+  // --- AUTHENTIFICATION ---
+  login(credentials: LoginRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/login`, credentials).pipe(
+      tap(response => { if (response && response.token) this.saveToken(response.token); })
     );
   }
 
-  register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData).pipe(
-      tap(response => this.saveToken(response.token))
+  register(userData: RegisterRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/register`, userData).pipe(
+      tap(response => { if (response && response.token) this.saveToken(response.token); })
     );
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-  }
-
+  // --- GESTION DU TOKEN ---
+  getToken(): string | null { return localStorage.getItem('token'); }
+  saveToken(token: string): void { localStorage.setItem('token', token); }
+  removeToken(): void { localStorage.removeItem('token'); }
   isLoggedIn(): boolean {
-    return !!this.getToken();
-  }
-
-  // NOUVELLE MÉTHODE : Extraire les initiales de l'email contenu dans le Token JWT
-  getUserInitials(): string {
     const token = this.getToken();
-    if (!token) return '?';
-    try {
-      // Décodage de la partie payload du JWT (standard Base64Url)
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const payload = JSON.parse(window.atob(base64));
-      
-      const email = payload.sub || ''; // 'sub' contient l'email
-      if (email) {
-        return email.substring(0, 2).toUpperCase(); // Retourne les 2 premières lettres
-      }
-      return '?';
-    } catch (e) {
-      return '?';
-    }
+    if (!token) return false;
+    const payload = this.getDecodedToken();
+    if (!payload || typeof payload.exp !== 'number') return false;
+    return payload.exp * 1000 > Date.now();
   }
 
-  private saveToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
+  // --- DECONNEXION ---
+  logout(): void {
+    this.removeToken();
+    this.router.navigate(['/login']);
+  }
+
+  // --- GESTION DES RÔLES ET UTILISATEUR ---
+  private getDecodedToken(): any {
+    const token = this.getToken();
+    if (!token) return null;
+    try { return JSON.parse(atob(token.split('.')[1])); } catch (e) { return null; }
+  }
+
+  getUserRole(): string {
+    const payload = this.getDecodedToken();
+    if (!payload) return '';
+    let roleData = payload.role || payload.roles || payload.authorities;
+    if (!roleData) return '';
+    if (Array.isArray(roleData) && roleData.length > 0) {
+      roleData = roleData[0];
+      if (typeof roleData === 'object' && roleData.authority) {
+        return roleData.authority;
+      }
+    }
+    return String(roleData);
+  }
+
+  getUserRoles(): string[] {
+    const payload = this.getDecodedToken();
+    if (!payload) return [];
+    const roleData = payload.role || payload.roles || payload.authorities || [];
+    const values = Array.isArray(roleData) ? roleData : [roleData];
+    return values.map(role =>
+      typeof role === 'object' && role.authority ? role.authority : String(role)
+    );
+  }
+
+  isAdmin(): boolean {
+    return this.getUserRoles().some(role => role.includes('ROLE_ADMIN') || role === 'ADMIN');
+  }
+
+  isOrganizer(): boolean {
+    const role = this.getUserRole();
+    return role.includes('EDITEUR') || role.includes('ADMIN');
+  }
+
+  getUserInitials(): string {
+    const payload = this.getDecodedToken();
+    if (payload && payload.nomComplet) {
+      const parts = payload.nomComplet.split(' ');
+      if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+      return parts[0][0].toUpperCase();
+    }
+    return 'US';
   }
 }

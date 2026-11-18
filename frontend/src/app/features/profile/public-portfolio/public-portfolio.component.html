@@ -1,0 +1,101 @@
+<div class="min-h-screen bg-[#F8FAFC] font-sans pb-12">
+  
+  <!-- NAVBAR PUBLIQUE SIMPLIFIÉE -->
+  <nav class="bg-[#062A16] w-full py-4 px-6 shadow-md flex justify-between items-center">
+    <a routerLink="/" class="flex items-center gap-2">
+      <img src="images/logo.png" alt="Logo" class="h-8 w-auto bg-white rounded-lg p-1">
+      <span class="font-black text-xl text-white tracking-tighter">Hacka<span class="text-yellow-400">BF</span></span>
+    </a>
+    <a routerLink="/hackathons" class="text-white text-sm font-bold hover:text-yellow-400 transition-colors">Découvrir les hackathons</a>
+  </nav>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+    
+    <div *ngIf="isLoading" class="flex justify-center py-20">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#062A16]"></div>
+    </div>
+
+    <div *ngIf="errorMessage" class="bg-red-50 text-red-600 p-6 rounded-2xl text-center border border-red-200">
+      <p class="font-bold text-lg">{{ errorMessage }}</p>
+      <a routerLink="/" class="inline-block mt-4 text-[#062A16] hover:underline">Retour à l'accueil</a>
+    </div>
+
+    <div *ngIf="!isLoading && profile" class="space-y-8 animate-fade-in">
+      
+      <!-- BANNIÈRE PROFIL -->
+      <div class="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="h-32 bg-[#062A16] relative">
+          <img src="images/Profil_etudiant.png" class="w-full h-full object-cover opacity-30 mix-blend-overlay">
+        </div>
+        <div class="px-8 pb-8 relative">
+          <div class="flex flex-col md:flex-row items-center md:items-end gap-6 -mt-16">
+            <img src="https://ui-avatars.com/api/?name={{profile.nomComplet}}&background=0D9488&color=fff&size=128" 
+                 class="w-32 h-32 rounded-full border-4 border-white shadow-xl bg-white object-cover">
+            <div class="flex-grow text-center md:text-left">
+              <h1 class="text-3xl font-black text-slate-900">{{ profile.nomComplet }}</h1>
+              <p class="text-slate-500 mt-1">{{ profile.niveauEtude }} à {{ profile.etablissement }}</p>
+              <div class="flex flex-wrap justify-center md:justify-start gap-4 mt-3 text-sm text-slate-600">
+                <span class="flex items-center gap-1">📍 {{ profile.ville }}</span>
+                <a *ngIf="profile.lienGithub" [href]="profile.lienGithub" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-[#062A16] font-bold hover:underline">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.463 2 11.97c0 4.404 2.865 8.14 6.839 9.458.5.092.682-.216.682-.48 0-.236-.008-.864-.013-1.695-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.892 1.524 2.341 1.084 2.91.828.092-.643.35-1.083.636-1.332-2.22-.251-4.555-1.107-4.555-4.927 0-1.088.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.606 9.606 0 0112 6.82c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.64.696 1.028 1.587 1.028 2.675 0 3.83-2.339 4.673-4.566 4.92.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48C19.138 20.107 22 16.374 22 11.97 22 6.463 17.522 2 12 2z"></path></svg>
+                  GitHub
+                </a>
+              </div>
+            </div>
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex gap-6 text-center">
+              <div>
+                <p class="text-2xl font-black text-[#062A16]">{{ profile.totalInscriptions }}</p>
+                <p class="text-[10px] text-slate-500 uppercase font-bold">Hackathons</p>
+              </div>
+              <div>
+                <p class="text-2xl font-black text-[#062A16]">{{ profile.portfolio.length }}</p>
+                <p class="text-[10px] text-slate-500 uppercase font-bold">Projets terminés</p>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="profile.bio" class="mt-6 text-slate-600 text-sm max-w-3xl italic border-l-4 border-[#062A16] pl-4">
+            "{{ profile.bio }}"
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION PORTFOLIO -->
+      <div>
+        <h2 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-2">
+          <svg class="w-6 h-6 text-[#062A16]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          Projets réalisés
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (item of profile.portfolio; track item.id) {
+            <div class="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
+              <div class="h-40 overflow-hidden relative">
+                <img [src]="item.hackathon.imageUrl || 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800&auto=format&fit=crop'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <span class="absolute bottom-3 left-3 text-white text-xs font-bold bg-[#062A16]/80 px-3 py-1 rounded-lg backdrop-blur-sm">
+                  {{ item.hackathon.categorieNom }}
+                </span>
+              </div>
+              <div class="p-5">
+                <h3 class="text-lg font-bold text-slate-900 mb-1 line-clamp-1">{{ item.hackathon.titre }}</h3>
+                <p class="text-sm text-slate-500 mb-4">{{ item.hackathon.dateDebut | date:'MMMM yyyy' }}</p>
+                
+                <div class="flex items-center gap-2 mt-auto">
+                  <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg border border-slate-200">Participant</span>
+                  @if (item.equipe) {
+                    <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-100">Équipe {{ item.equipe.nom }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+          } @empty {
+            <div class="col-span-full text-center py-16 bg-white rounded-2xl border border-slate-200 border-dashed">
+              <p class="text-slate-500">Cet étudiant n'a pas encore terminé de hackathon.</p>
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

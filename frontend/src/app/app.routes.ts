@@ -9,6 +9,7 @@ import { MonEspaceComponent } from './features/dashboard/mon-espace/mon-espace.c
 import { ManageHackathonComponent } from './features/dashboard/manage-hackathon/manage-hackathon.component';
 import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: HomePageComponent },
@@ -19,6 +20,6 @@ export const routes: Routes = [
   { path: 'publier', component: CreateHackathonComponent, canActivate: [AuthGuard] },
   { path: 'mon-espace', component: MonEspaceComponent, canActivate: [AuthGuard] },
   { path: 'gerer/:id', component: ManageHackathonComponent, canActivate: [AuthGuard] },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: '**', redirectTo: '' }
 ];

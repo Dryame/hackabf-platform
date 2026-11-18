@@ -20,7 +20,7 @@ export class RegisterComponent {
     this.registerForm = this.fb.group({
       nomComplet: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      motDePasse: ['', [Validators.required, Validators.minLength(6)]],
+      motDePasse: ['', [Validators.required, Validators.minLength(8)]],
       etablissement: ['', Validators.required],
       niveauEtude: ['', Validators.required],
       ville: ['', Validators.required]
